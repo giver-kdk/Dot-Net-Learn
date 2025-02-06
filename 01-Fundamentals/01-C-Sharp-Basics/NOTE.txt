@@ -1,0 +1,2 @@
+- The given codes can be executed directly from terminal using 'csc' compiler
+- To run the program from Visual Studio, copy the code into the 'Console-Program' project and run
