@@ -1,0 +1,25 @@
+- When request is sent from browser to server, the request doesn't go directly to controller
+- It goes as: 
+	Request --> Request Pipeline --> Controller
+- So, basically, middleware is a function that processes request before reaching the controller
+- Let us assume 3 middlewares M1, M2 and M3 then the request passes as:
+	- Request --> (M1 --> M2 --> M3 --> M2 --> M1) --> Controller
+- The request pipeline is the sequence of middlewares
+- ASP.NET can have 'n' number of middlewares
+- The order of middleware matters as the request passes through them in the order they are defined
+- Example: 
+	- Routing
+	- Authentication
+	- Exception Handling, etc.
+
+
+
+- Write the middleware code inside Program.cs on: 
+// ******************* Configure Request Pipeline (Middlewares) *******************
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");				// Pre-defined Middleware
+    app.UseHsts();
+}
+// ********************************************************************************
+
