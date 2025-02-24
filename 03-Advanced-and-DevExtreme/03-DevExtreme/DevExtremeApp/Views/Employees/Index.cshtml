@@ -1,0 +1,19 @@
+﻿@{
+}
+@model IEnumerable<DevExtremeApp.Models.Employee>
+
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<h1>Employees</h1>
+
+<!-- 'dataGrid' is now a DevExtreme component for DataGrid -->
+<div id="dataGrid"></div>               <!-- Checkout the jQuery for this line in 'site.js' -->
+
+@section Scripts {
+    <script>
+            // Store the Model data into JS variable by converting it into JSON format
+            var employeeData = @Html.Raw(Json.Serialize(Model));
+    </script>
+}

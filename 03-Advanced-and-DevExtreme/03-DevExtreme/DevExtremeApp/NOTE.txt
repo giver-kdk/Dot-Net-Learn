@@ -1,0 +1,35 @@
+****** Steps for DevExtreme CRUD Operation: ******
+
+- Install following packages: 
+	- Microsoft.EntityFrameworkCore.SqlServer
+	- Microsoft.EntityFrameworkCore.Tools
+	- Microsoft.EntityFrameworkCore.Design
+
+- Create the database with tables in SQL Server Management Studio
+	- Make sure the Table has primary key
+	- Set the same Primary Key column as 'Identity Column' on the SSMS
+
+- Generate the model classes by running followign command on PM(Package Manager) console: 
+	- Scaffold-DbContext "Server=YUSHUV-PC\SQLEXPRESS;Database=dx_employee;Trusted_Connection=True;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+- Define the JSONPropertyName for the model class properties
+	- This is required to have a consistent JSON property name when Model is serialized to JSON
+
+- Generate the controller by using the option: 
+	- 'MVC Controller with views, using Entity Framework'
+	- Remove unneccessary code from the controller and only keep 'Index' Action Method
+
+- Add connection string to the Database in appsettings.json: 
+	- "ConnectionStrings": {
+        "myConStr": "server=Yushuv-PC\\SQLEXPRESS; database=dx_employee; Trusted_Connection=True; TrustServerCertificate=True;"
+    }
+
+- Add the Database Context on Program.cs file before 'builder.build()': 
+	- String connectionString = builder.Configuration.GetConnectionString("myConStr");
+	builder.Services.AddDbContext<DxEmployeeContext>(options => options.UseSqlServer(connectionString));
+
+- Create the View for Data Grid in .cshtml file(Employees/index.cshtml)
+	- Write the remaining JS code of DataGrid in 'wwwroot/js/site.js' file
+	- The style code can be written in 'wwwroot/css/site.css' file
+
+- Insert data into the Database and check if the data is displayed in the DataGrid

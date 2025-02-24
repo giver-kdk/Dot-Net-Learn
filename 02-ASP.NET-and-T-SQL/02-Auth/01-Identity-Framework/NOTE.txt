@@ -1,0 +1,2 @@
+- Create ASP.NET Core Razor Page
+	- Select the Authentication option as Individual User Accounts

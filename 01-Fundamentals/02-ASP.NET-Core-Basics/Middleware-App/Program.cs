@@ -35,7 +35,7 @@ app.Use(async (context, next) => {
 app.Use(async (context, next) => {
     bool isBlog = context.Request.Path.StartsWithSegments("/blog");
     bool isNews = context.Request.Path.StartsWithSegments("/news"); 
-    if (isBlog || isNews)        // Log for home page only
+    if (isBlog || isNews)                   // Log for blog or news page only
     {
         DateTime startTime = new DateTime();
 

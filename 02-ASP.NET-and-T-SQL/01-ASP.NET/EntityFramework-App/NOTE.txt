@@ -1,0 +1,28 @@
+****** Steps for Database First ASP.NET App usign EF Core: ******
+
+- Install following packages: 
+	- Microsoft.EntityFrameworkCore.SqlServer
+	- Microsoft.EntityFrameworkCore.Tools
+	- Microsoft.EntityFrameworkCore.Design
+
+- Create the database with tables in SQL Server Management Studio
+	- Make sure the Table has primary key
+	- Set the same Primary Key column as 'Identity Column' on the SSMS
+
+- Generate the model classes by running followign command on PM(Package Manager) console: 
+	- Scaffold-DbContext "Server=YUSHUV-PC\SQLEXPRESS;Database=db_first;Trusted_Connection=True;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+- Generate the controller by using the option: 
+	- 'MVC Controller with views, using Entity Framework'
+
+- Add connection string to the Database in appsettings.json: 
+	- "ConnectionStrings": {
+        "myConStr": "server=Yushuv-PC\\SQLEXPRESS; database=db_first; Trusted_Connection=True; TrustServerCertificate=True;"
+    }
+
+- Add the Database Context on Program.cs file before 'builder.build()': 
+	- String connectionString = builder.Configuration.GetConnectionString("myConStr");
+	builder.Services.AddDbContext<DbFirstContext>(options => options.UseSqlServer(connectionString));
+
+- Run the app and checout the routes as per the View Folder structure
+	- Else you can configure custom routing in the 'Program.cs' file too
