@@ -15,5 +15,82 @@
     <script>
             // Store the Model data into JS variable by converting it into JSON format
             var employeeData = @Html.Raw(Json.Serialize(Model));
+
+
+                 // Data Grid Script
+        $(function () {
+            // 'employeeData' JS variable is already created in Employee/Index.cshtml file
+            console.log(employeeData);
+
+            $("#dataGrid").dxDataGrid({
+                //dataSource: employeeData,
+                dataSource: new DevExpress.data.CustomStore({
+                    key: "Id",
+                    load: function () {
+                        // return $.getJSON("/Employees");
+                        return employeeData;
+                    },
+                    insert: function (values) {
+                        return $.ajax({
+                            url: "/Employees/Create",
+                            method: "POST",
+                            data: values
+                        });
+                    },
+                    update: function (key, values) {
+                        return $.ajax({
+                            url: `/Employees/Edit/${key}`,
+                            method: "PUT",
+                            data: values
+                        }).done(function () {
+                            console.log("Update Complete");
+                            // Refresh DataGrid after update
+                            // $("#dataGrid").dxDataGrid("instance").refresh();
+                        });
+                    },
+                    remove: function (key) {
+                        return $.ajax({
+                            url: `/Employees/Delete/${key}`,
+                            method: "DELETE"
+                        });
+                    }
+                }),
+                editing: {
+                    // *** Refreshes the grid (+ re-applies sorting, filtering, etc.) after Manipulation ***
+					refreshMode: 'reshape',		    
+                    allowAdding: true,
+                    allowUpdating: true,
+                    allowDeleting: true,
+                    mode: "popup"                   // Opens an edit form in a popup window
+                },
+                // Fields to be displayed in the grid
+                columns: [
+                    { dataField: "Id", allowEditing: false },
+                    { dataField: "Name", caption: "Name" },
+                    { dataField: "Position", caption: "Position" },
+                    { dataField: "Salary", caption: "Salary", dataType: "number" }
+                ],
+                showBorders: true,                  // Adds borders in the grid
+                paging: {
+                    pageSize: 5                     // Number of rows per page
+                },
+                pager: {
+                    showPageSizeSelector: true,     // Allows user to control number of rows per page
+                    allowedPageSizes: [5, 10, 20]   // Gives options of 5, 10 or 20 rows per page
+                },
+                filterRow: {
+                    visible: true
+                },
+                headerFilter: {
+                    visible: true
+                },
+                groupPanel: {
+                    visible: true
+                },
+                searchPanel: {
+                    visible: true
+                }
+            });
+        });
     </script>
 }

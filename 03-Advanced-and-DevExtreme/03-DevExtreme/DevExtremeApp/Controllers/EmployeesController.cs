@@ -27,7 +27,7 @@ namespace DevExtremeApp.Controllers
 
         // GET: Employees/Details/5
         [HttpGet]
-        [Route("api/[controller]/id")]
+        [Route("[controller]/id")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,112 +45,86 @@ namespace DevExtremeApp.Controllers
             return View(employee);
         }
 
-        // GET: Employees/Create
-        [HttpPost]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        // Remove 'ValidateAntiForgeryToken' for allowing DELETE requests from client
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Position,Salary")] Employee employee)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // *** 'OK' status with new data will signal Data Grid UI to update ***     
+                return Ok(employee);
             }
-            //return View(employee);
-            return RedirectToAction("Index");
+            return BadRequest();            
         }
 
-        // GET: Employees/Edit/5
-        [HttpPut]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-            //return View(employee);
-            return RedirectToAction("Index");
-
-        }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Position,Salary")] Employee employee)
         {
+            Console.WriteLine("*** Edit Action ***");
+
             if (id != employee.Id)
             {
+                Console.WriteLine("*** Not Found - No Edit ***");
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Check existing Employee from the database
+                var existingEmployee = await _context.Employees.FindAsync(id);
+                if (existingEmployee != null)
                 {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
+                    // By default, we have to modify all properties to update Employee.
+                    // Non-modified properties are set to null. So, Update only modified properties one by one
+                    if (employee.Name != null)
+                    {
+                        existingEmployee.Name = employee.Name;
+                    }
+                    if (employee.Position != null)
+                    {
+                        existingEmployee.Position = employee.Position;
+                    }
+                    if (employee.Salary != 0)
+                    {
+                        existingEmployee.Salary = employee.Salary;
+                    }
+                    // Mark the entity as modified and save changes
+                    _context.Entry(existingEmployee).State = EntityState.Modified;
                 }
-                catch (DbUpdateConcurrencyException)
+
+                await _context.SaveChangesAsync();
+                // *** 'OK' status with new data will signal Data Grid UI to update ***     
+                return Ok(existingEmployee);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                Console.WriteLine("*** Edit Error ***");
+
+                if (!EmployeeExists(employee.Id))
                 {
-                    if (!EmployeeExists(employee.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    throw;
+                }
             }
-            //return View(employee);
-            return RedirectToAction("Index");
-
-        }
-
-        // GET: Employees/Delete/5
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            //return View(employee);
-            return RedirectToAction("Index");
-
         }
 
         // POST: Employees/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpDelete]
+        // Remove 'ValidateAntiForgeryToken' for allowing DELETE requests from client
+        //[ValidateAntiForgeryToken]                            
+        public async Task<IActionResult> Delete(int? id)
         {
+            Console.WriteLine("*** Delete Method ***");
+
             var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {
@@ -158,7 +132,8 @@ namespace DevExtremeApp.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // *** 'OK' status will signal Data Grid UI to update ***     
+            return Ok();                    
         }
 
         private bool EmployeeExists(int id)

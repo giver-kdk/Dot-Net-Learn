@@ -1,26 +1,7 @@
-using Microsoft.EntityFrameworkCore;
-using DevExtremeApp.Models;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-// Add DB Context to the container.
-String connectionString = builder.Configuration.GetConnectionString("myConStr");
-builder.Services.AddDbContext<DxEmployeeContext>(options => options.UseSqlServer(connectionString));
-
-// Add CORS policy to the container.
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-
 
 var app = builder.Build();
 
@@ -31,8 +12,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-app.UseCors("AllowAll");            // Use allowed CORS policy
 
 app.UseHttpsRedirection();
 app.UseRouting();
