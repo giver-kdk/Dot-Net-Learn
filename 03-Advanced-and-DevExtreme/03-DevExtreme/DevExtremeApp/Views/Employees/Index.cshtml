@@ -42,10 +42,6 @@
                             url: `/Employees/Edit/${key}`,
                             method: "PUT",
                             data: values
-                        }).done(function () {
-                            console.log("Update Complete");
-                            // Refresh DataGrid after update
-                            // $("#dataGrid").dxDataGrid("instance").refresh();
                         });
                     },
                     remove: function (key) {

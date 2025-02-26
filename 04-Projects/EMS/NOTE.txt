@@ -1,0 +1,7 @@
+Target Features: 
+	- Set Clock In and Clock Out in the system by Employees 
+	- Request Leaves from the system by Employees
+	- Approve/Reject leave request of Employees by Manager
+	- Attendance Tracking of Employees by Manager
+	- Track Working Hour of Employees by Manager
+	- CRUD operation of Employees by Manager
