@@ -1,7 +1,20 @@
-Target Features: 
+Target Features for Employees: 
 	- Set Clock In and Clock Out in the system by Employees 
 	- Request Leaves from the system by Employees
+
+Target Features for Managers: 
 	- Approve/Reject leave request of Employees by Manager
 	- Attendance Tracking of Employees by Manager
 	- Track Working Hour of Employees by Manager
 	- CRUD operation of Employees by Manager
+
+
+Install following packages on main EMS project:
+	- Microsoft.AspNetCore.Identity.EntityFrameworkCore 
+	- Microsoft.EntityFrameworkCore.Design
+	- Microsoft.EntityFrameworkCore.SqlServer
+	- Microsoft.EntityFrameworkCore.Tools
+
+- Latest Update:
+	- Issues with Repositories Implementation in EMS.Insfrastructure
+	- Organize the package installation on only required projects

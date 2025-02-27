@@ -18,5 +18,7 @@ namespace EMS.Domain.Models
         public LeaveStatus Status { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime RequestDate { get; set; }
+        public Employee Employee { get; set; }
+
     }
 }

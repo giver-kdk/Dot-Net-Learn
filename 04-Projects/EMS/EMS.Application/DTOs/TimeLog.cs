@@ -4,15 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMS.Domain.Models
+namespace EMS.Application.DTOs
 {
-    public class TimeLog
+    public class TimeLogDto
     {
-        public int Id { get; set; }
-        public int EmployeeId { get; set; }
-        public DateTime ClockIn { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime? ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
         public TimeSpan? WorkingHours { get; set; }
-        public Employee Employee { get; set; }
     }
 }
