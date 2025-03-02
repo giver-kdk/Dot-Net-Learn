@@ -1,8 +1,27 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+<!-- Rounded border container -->
+<div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; max-width: 600px; margin: 0 auto; position: relative;">
+    <!-- In Button (Left) -->
+    <button style="background-color: lightgreen; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);">
+        In
+    </button>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <!-- Out Button (Right) -->
+    <button style="background-color: lightcoral; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">
+        Out
+    </button>
+
+    <!-- Set Status Button (Center-Bottom) -->
+    <button style="background-color: lightblue; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+        Set Status
+    </button>
+</div>
+
+<!-- Office Infrastructure Illustration -->
+<div style="margin-top: 40px; text-align: center;">
+    <img src="https://img.freepik.com/free-vector/office-interior-with-workspace_107791-1055.jpg?w=1380&t=st=1700000000~exp=1700000600~hmac=1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+         alt="Office Infrastructure Illustration"
+         style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);" />
 </div>

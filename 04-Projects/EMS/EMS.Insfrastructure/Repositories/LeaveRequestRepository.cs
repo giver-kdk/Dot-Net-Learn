@@ -20,17 +20,24 @@ namespace EMS.Insfrastructure.Repositories
             _context = context;
         }
 
-        Task<LeaveRequest> CreateRequest(LeaveRequest request){
-
+        public Task<LeaveRequest> CreateRequest(LeaveRequest request)
+        {
+            throw new NotImplementedException();
         }
-        Task<LeaveRequest> UpdateStatus(int requestId, LeaveStatus status, string rejectionReason = null){
 
+        public Task<IEnumerable<LeaveRequest>> GetEmployeeRequests(int employeeId)
+        {
+            throw new NotImplementedException();
         }
-        Task<IEnumerable<LeaveRequest>> GetEmployeeRequests(int employeeId){
 
+        public Task<IEnumerable<LeaveRequest>> GetPendingRequests()
+        {
+            throw new NotImplementedException();
         }
-        Task<IEnumerable<LeaveRequest>> GetPendingRequests(){
 
+        public Task<LeaveRequest> UpdateStatus(int requestId, LeaveStatus status, string rejectionReason = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

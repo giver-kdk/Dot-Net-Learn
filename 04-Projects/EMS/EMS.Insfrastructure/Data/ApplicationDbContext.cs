@@ -10,8 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EMS.Insfrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
-{
+    // ************* Here, <Employee, Role, int> specifies identity user and role *************
+    public class ApplicationDbContext : IdentityDbContext<Employee, Role, int>
+    {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -26,17 +27,17 @@ namespace EMS.Insfrastructure.Data
         base.OnModelCreating(builder);
         
         // Configure relationships and constraints
-        builder.Entity<Employee>()
-            .HasMany(e => e.TimeLogs)
-            .WithOne(t => t.Employee)
-            .HasForeignKey(t => t.EmployeeId)
-            .OnDelete(DeleteBehavior.Cascade);
+        //builder.Entity<Employee>()
+        //    .HasMany(e => e.TimeLogs)
+        //    .HasOne(t => t.Employee)
+        //    .HasForeignKey(t => t.EmployeeId)
+        //    .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Employee>()
-            .HasMany(e => e.LeaveRequests)
-            .WithOne(l => l.Employee)
-            .HasForeignKey(l => l.EmployeeId)
-            .OnDelete(DeleteBehavior.Cascade);
+        //builder.Entity<Employee>()
+        //    .HasMany(e => e.LeaveRequests)
+        //    .WithOne(l => l.Employee)
+        //    .HasForeignKey(l => l.EmployeeId)
+        //    .OnDelete(DeleteBehavior.Cascade);
     }
 }
 }

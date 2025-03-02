@@ -23,9 +23,43 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                       
+                        <!-- ********* Show nav options according to user's role ********* -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Employee"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Employee" asp-controller="AskLeave" asp-action="Index">Ask Leave</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Manager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="ReviewLeave" asp-action="Index">Review Leave</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="EmployeeAttendance" asp-action="Index">Employee Attendance</a>
+                                </li>
+                            }
+
+                            <!-- Common options for all authenticated users -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="MyAttendance" asp-action="Index">My Attendance</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Logout" asp-action="Index">Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Register" asp-action="Index">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Login" asp-action="Index">Login</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -45,6 +79,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Auto browser refresh on hot reload -->
+    <script src="/_framework/aspnetcore-browser-refresh.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

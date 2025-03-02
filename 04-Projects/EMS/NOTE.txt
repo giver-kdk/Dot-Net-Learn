@@ -1,3 +1,5 @@
+************************************ PROJECT SETUP ************************************
+
 Target Features for Employees: 
 	- Set Clock In and Clock Out in the system by Employees 
 	- Request Leaves from the system by Employees
@@ -14,6 +16,65 @@ Install following packages on main EMS project:
 	- Microsoft.EntityFrameworkCore.Design
 	- Microsoft.EntityFrameworkCore.SqlServer
 	- Microsoft.EntityFrameworkCore.Tools
+
+
+
+
+************************************ IDENTITY SETUP ************************************
+
+Install following packages on main EMS.Domain project:
+	- Microsoft.AspNetCore.Identity.EntityFrameworkCore 
+
+Setup user and role: 
+	- Create custom user like Employee by inheriting IdentityUser class (Models/Employee.cs)
+	- Create Role Model (Models/Role.cs)
+	- Update DB Context class to include User and Role (Data/ApplicationDbContext.cs)
+	- Update Program.cs file to include Identity service and also enable 'Authentication'
+
+Setup database: 
+	- Create database in SSMS 
+	- Set the conneciton string in appsettings.json file of main EMS project:
+	- "ConnectionStrings": {
+        "myConStr": "server=Yushuv-PC\\SQLEXPRESS; database=EMS_DB; Trusted_Connection=True; TrustServerCertificate=True;"
+    },
+	- Specify connection string in Program.cs file of main EMS project
+
+Setup ASP.NET Identity as: 
+	- Add migration and generate database tables with scaffold command: 
+		- Make sure to have the 'dotnet-ef' command line tool installed:
+			- dotnet tool install --global dotnet-ef
+		- Scaffold the database with the following command:
+			- dotnet ef migrations add InitialIdentitySetup
+			- dotnet ef database update
+	- After this, your Identity User Tables as well as other Model tables will be created in the database.
+
+Initialize the Roles: 
+	- Create a class that creates a role(Data/RoleSeedData.cs)
+	- Initialize that class in Program.cs
+
+Create Views for Identity:
+	- Create the view for user registration, login, manager and employee with folder structure as:
+		- Views
+			- Register
+				- Index.cshtml
+			- Login
+				- Index.cshtml
+			- Manager
+				- Index.cshtml
+			- Employee
+				- Index.cshtml
+
+Create Controllers for Identity:
+	- Create the controller for user registration, login and logout with folder structure as:
+		- Controllers
+			- RegisterController.cs
+			- LoginController.cs
+			- LogoutController.cs
+
+Disable auto generation of Assembly file in all project's .csproj file:
+	- <PropertyGroup>
+			<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	  </PropertyGroup>
 
 - Latest Update:
 	- Issues with Repositories Implementation in EMS.Insfrastructure

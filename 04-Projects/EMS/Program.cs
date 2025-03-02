@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using EMS.Application.Interfaces;
 using EMS.Insfrastructure.Repositories;
+using EMS.Domain.Models;
+using EMS.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // ************* Add DB Context and Identity *************
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+String connectionString = builder.Configuration.GetConnectionString("myConStr");
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-    options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddIdentity<Employee, Role>(options =>
+{
+    //options.SignIn.RequireConfirmedAccount = true;
+    options.User.RequireUniqueEmail = true;
+}).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Register repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -36,7 +42,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthorization();
+// ******** Enable authentication + authorization and also enables 'Identity Area' ********
+app.UseAuthentication();                
+app.UseAuthorization(); 
 
 app.MapStaticAssets();
 
@@ -44,6 +52,14 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+
+// ************ Initialize the Role from EMS.Infrastructure.Data.RoleSeedData ************ 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await RoleSeedData.Initialize(services);
+}
 
 
 app.Run();

@@ -12,7 +12,7 @@ namespace EMS.Domain.Models
         public int EmployeeId { get; set; }
         public DateTime ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
-        public TimeSpan? WorkingHours { get; set; }
+        public TimeSpan? WorkingHoursPerDay { get; set; }
         public Employee Employee { get; set; }
     }
 }

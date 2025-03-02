@@ -18,17 +18,24 @@ namespace EMS.Insfrastructure.Repositories
             _context = context;
         }
 
-        Task<TimeLog> ClockIn(int employeeId){
-
+        public Task<TimeLog> ClockIn(int employeeId)
+        {
+            throw new NotImplementedException();
         }
-        Task<TimeLog> ClockOut(int employeeId){
 
+        public Task<TimeLog> ClockOut(int employeeId)
+        {
+            throw new NotImplementedException();
         }
-        Task<IEnumerable<TimeLog>> GetEmployeeTimeLogs(int employeeId, DateTime startDate, DateTime endDate){
 
+        public Task<IEnumerable<TimeLog>> GetEmployeeTimeLogs(int employeeId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
         }
-        Task<TimeSpan> GetTotalWorkingHours(int employeeId, DateTime date){
 
+        public Task<TimeSpan> GetTotalWorkingHours(int employeeId, DateTime date)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EMS.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,10 +12,13 @@ namespace EMS.Application.DTOs
         public int Id { get; set; }
         public string FullName { get; set; }
         public string Email { get; set; }
-        public string Department { get; set; }
-        public TimeSpan TotalWorkingHours { get; set; }
+        public string Position { get; set; }
+        public int PresentDaysCount { get; set; }
+        public int AbscentDaysCount { get; set; }
+        public double AttendancePercentage { get; set; }
+        public TimeSpan TotalWorkingHours { get; set; } = TimeSpan.Zero;
         public int PendingLeaveRequests { get; set; }
+        public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
+
     }
-
-
 }
