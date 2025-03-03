@@ -17,7 +17,6 @@ namespace EMS.Application.DTOs
         public int AbscentDaysCount { get; set; }
         public double AttendancePercentage { get; set; }
         public TimeSpan TotalWorkingHours { get; set; } = TimeSpan.Zero;
-        public int PendingLeaveRequests { get; set; }
         public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
 
     }

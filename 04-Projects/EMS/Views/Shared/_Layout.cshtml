@@ -6,10 +6,18 @@
     <title>@ViewData["Title"] - EMS</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EMS.styles.css" asp-append-version="true" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- DevExtreme theme -->
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/24.2.3/css/dx.light.css">
+    <!-- DevExtreme libraries -->
+    <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script>
+
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body class="dx-viewport">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -30,22 +38,22 @@
                             @if (User.IsInRole("Employee"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="Employee" asp-controller="AskLeave" asp-action="Index">Ask Leave</a>
+                                    <a class="nav-link" asp-controller="Employee" asp-action="LeaveRequest">Ask Leave</a>
                                 </li>
                             }
                             else if (User.IsInRole("Manager"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="ReviewLeave" asp-action="Index">Review Leave</a>
+                                    <a class="nav-link" asp-controller="Manager" asp-action="ReviewLeave">Review Leave</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="EmployeeAttendance" asp-action="Index">Employee Attendance</a>
+                                    <a class="nav-link" asp-controller="Manager" asp-action="EmployeeAttendance">Employee Attendance</a>
                                 </li>
                             }
 
                             <!-- Common options for all authenticated users -->
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="MyAttendance" asp-action="Index">My Attendance</a>
+                                <a class="nav-link" asp-controller="Employee" asp-action="MyAttendance">My Attendance</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Logout" asp-action="Index">Logout</a>
@@ -76,12 +84,13 @@
             &copy; 2025 - EMS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     <!-- Auto browser refresh on hot reload -->
     <script src="/_framework/aspnetcore-browser-refresh.js"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

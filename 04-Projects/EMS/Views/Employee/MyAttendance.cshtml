@@ -1,0 +1,59 @@
+﻿@model EMS.Application.DTOs.EmployeeDto
+
+@{
+    ViewData["Title"] = "Employee Attendance";
+}
+
+<div class="text-center">
+    <h1>@Model.FullName: @Model.Position</h1>
+</div>
+
+<div id="chart"></div>
+
+<div class="text-center">
+    <h2><strong>Attendance Percentage: @Model.AttendancePercentage.ToString("0.00")%</strong></h2>
+</div>
+
+<div class="text-center">
+    <p><strong>Total Working Hours: @Model.TotalWorkingHours Hrs</p>
+</div>
+
+<script>
+    $(function () {
+        // Doughnut chart data transformation and visualization
+        var totalDays = @Model.PresentDaysCount + @Model.AbscentDaysCount;
+
+        var presentRatio = (@Model.PresentDaysCount / totalDays);
+        var absentRatio = (@Model.AbscentDaysCount / totalDays);
+
+        var attendanceData = [
+            { category: `Present: ${@Model.PresentDaysCount}`, value: presentRatio },
+            { category: `Absent: ${@Model.AbscentDaysCount}`, value: absentRatio }
+        ];
+        console.log(attendanceData);
+
+        $("#chart").dxPieChart({
+            dataSource: attendanceData,
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "doughnut",
+                label: {
+                    visible: true,
+                    format: "percent",
+                    font: {
+                        size: 21,
+                        weight: "bold"
+                    },
+                    connector: {
+                        visible: true
+                    }
+                }
+            },
+            legend: {
+                visible: true,
+                position: "bottom"
+            }
+        });
+    });
+</script>

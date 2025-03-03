@@ -13,6 +13,7 @@ namespace EMS.Application.DTOs
         public string EmployeeName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int NumofDays { get; set; }
         public string LeaveType { get; set; }
         public string Status { get; set; }
     }

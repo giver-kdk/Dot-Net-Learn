@@ -1,0 +1,118 @@
+﻿@using EMS.Domain.Enums
+@model List<EMS.Domain.Models.LeaveRequest>
+
+@{
+    ViewData["Title"] = "Leave Requests";
+}
+
+<style>
+    .leave__req--container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .leave__req--card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .leave__req--card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .leave__req--card-header .request-date {
+        font-size: 12px;
+        color: gray;
+    }
+
+    .leave__req--card-header .status {
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .status-approved {
+        color: green;
+    }
+
+    .status-rejected {
+        color: red;
+    }
+
+    .status-pending {
+        color: blue;
+    }
+
+    .leave__req--card-body {
+        margin-top: 8px;
+    }
+
+    .leave__req--card-body .reason {
+        margin-top: 8px;
+        cursor: pointer;
+        color: #007bff;
+    }
+
+    .leave__req--card-body .reason.collapsed {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="leave__req--container">
+    <select id="filter" class="form-control" style="width: 150px;">
+        <option value="Pending">Pending</option>
+        <option value="Closed">Closed</option>
+    </select>
+</div>
+
+@foreach (var leaveRequest in Model)
+{
+    <div class="leave__req--card">
+        <div class="leave__req--card-header">
+            <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
+            <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
+        </div>
+        <div class="leave__req--card-body">
+            <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
+            <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
+            <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+        </div>
+    </div>
+}
+
+<script>
+    function toggleReason(element) {
+        element.classList.toggle("collapsed");
+    }
+
+    document.getElementById("filter").addEventListener("change", function () {
+        window.location.href = "@Url.Action("ReviewLeave")?filter=" + this.value;
+    });
+
+    // Set the selected filter option
+    document.getElementById("filter").value = "@ViewBag.Filter";
+</script>
+
+@functions {
+    public string GetStatusClass(LeaveStatus status)
+    {
+        return status switch
+        {
+            LeaveStatus.Approved => "status-approved",
+            LeaveStatus.Rejected => "status-rejected",
+            LeaveStatus.Pending => "status-pending",
+            _ => ""
+        };
+    }
+}

@@ -10,6 +10,7 @@ namespace EMS.Domain.Enums
     public enum EmployeeStatus
     {
         Active,
+        Busy,
         OnLeave
     }
 }
