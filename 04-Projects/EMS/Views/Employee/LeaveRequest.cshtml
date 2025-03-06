@@ -88,6 +88,10 @@
             <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
             <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
             <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+            {
+                <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
+            }
         </div>
     </div>
 }

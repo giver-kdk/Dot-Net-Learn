@@ -1,5 +1,145 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<EMS.Application.DTOs.EmployeeDto>
+
 @{
+    ViewData["Title"] = "Employee Attendance";
 }
+
+<style>
+    .attendance-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .attendance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .attendance-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .attendance-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .attendance-item:hover {
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+
+        .attendance-item .details {
+            flex: 1;
+        }
+
+        .attendance-item .percentage {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+    <style >
+    .search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 10px 15px;
+        padding-left: 40px; /* Space for the icon */
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        font-size: 18px;
+        color: #888;
+    }
+</style>
+
+<div class="attendance-container">
+    <div class="attendance-header">
+        <div class="search-container">
+            <input id="search-box" class="search-box" type="text" placeholder="Search employees..." value="@ViewBag.Search" />
+        </div>        
+        <select id="filter-dropdown">
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+        </select>
+    </div>
+
+    <ul class="attendance-list">
+        @foreach (var employee in Model)
+        {
+            <li class="attendance-item" data-id="@employee.Id">
+                <div class="details">
+                    <strong>@employee.FullName</strong> - @employee.Position
+                    <div>
+                        <span>Present: @employee.PresentDaysCount</span> |
+                        <span>Absent: @employee.AbscentDaysCount</span>
+                    </div>
+                </div>
+                <div class="percentage">
+                    @employee.AttendancePercentage.ToString("0.00")%
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+<script>
+    $(function () {
+
+        // Auto-focus on the search box when the page re-loads
+        let searchBox = $("#search-box");
+        searchBox.focus(function () {
+            let length = searchBox.val().length;
+            searchBox[0].setSelectionRange(length, length);
+        }).focus();
+
+
+        $("#filter-dropdown").change(function () {
+            const filter = $(this).val();
+            const search = $("#search-box").val();
+            window.location.href = `@Url.Action("EmployeeAttendance")?filter=${filter}&search=${search}`;
+        });
+
+        $("#search-box").on("input", function () {
+            const filter = $("#filter-dropdown").val();
+            const search = $(this).val();
+            window.location.href = `@Url.Action("EmployeeAttendance")?filter=${filter}&search=${search}`;
+        });
+
+        // Handle employee item click
+        $(".attendance-item").click(function () {
+            const employeeId = $(this).data("id");
+            window.location.href = `@Url.Action("EmployeeTimelogs")?id=${employeeId}`;
+        });
+
+        $("#filter-dropdown").val("@ViewBag.Filter");
+    });
+</script>

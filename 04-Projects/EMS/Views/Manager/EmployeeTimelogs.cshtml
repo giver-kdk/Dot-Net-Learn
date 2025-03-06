@@ -1,0 +1,83 @@
+﻿@model IEnumerable<EMS.Domain.Models.TimeLog>
+@{
+    ViewData["Title"] = "Time Logs";
+    var employee = ViewBag.Employee as EMS.Domain.Models.Employee;
+}
+
+<h1>Time Logs for @employee.FullName</h1>
+
+<div id="gridContainer"></div>
+
+<script>
+
+    var timelogData = @Html.Raw(Json.Serialize(Model));
+
+    $(function () {
+        $("#gridContainer").dxDataGrid({
+            dataSource: timelogData,
+            columns: [
+                {
+                    dataField: "ClockIn",
+                    dataType: "date",
+                    format: "yyyy-MM-dd HH:mm:ss",
+                    caption: "Clock In"
+                },
+                {
+                    dataField: "ClockOut",
+                    dataType: "date",
+                    format: "yyyy-MM-dd HH:mm:ss",
+                    caption: "Clock Out"
+                },
+                {
+                    dataField: "WorkingHoursPerDay",
+                    caption: "Working Hours",
+                    calculateCellValue: function (rowData) {
+                        if (rowData.ClockOut && rowData.ClockIn) {
+                            const diff = new Date(rowData.ClockOut) - new Date(rowData.ClockIn);
+                            const hours = Math.floor(diff / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                            return `${hours}:${minutes}:${seconds}`;
+                        }
+                        return "";
+                    }
+                },
+                {
+                    type: "buttons",
+                    buttons: [{
+                        text: "Clock Out",
+                        visible: function (rowData) {
+                            return rowData.ClockOut == null;
+                        },
+                        onClick: function (e) {
+                            $.ajax({
+                                url: '@Url.Action("ClockOut", "TimeLog")',
+                                type: 'POST',
+                                data: { timeLogId: e.row.data.Id, employeeId: @employee.Id },
+                                success: function (result) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                    }]
+                }
+            ],
+            showBorders: true,
+            paging: {
+                pageSize: 10
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [5, 10, 20],
+                showInfo: true
+            },
+            export: {
+                enabled: true,
+                fileName: "TimeLogs"
+            },
+            allowColumnResizing: true,
+            columnResizingMode: "widget",
+            columnAutoWidth: true
+        });
+    });
+</script>

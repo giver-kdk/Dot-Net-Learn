@@ -2,7 +2,7 @@
 @model List<EMS.Domain.Models.LeaveRequest>
 
 @{
-    ViewData["Title"] = "Leave Requests";
+    ViewData["Title"] = "Review Leave";
 }
 
 <style>
@@ -19,6 +19,7 @@
         padding: 16px;
         margin-bottom: 16px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
 
     .leave__req--card-header {
@@ -28,15 +29,15 @@
         margin-bottom: 8px;
     }
 
-    .leave__req--card-header .request-date {
-        font-size: 12px;
-        color: gray;
-    }
+        .leave__req--card-header .request-date {
+            font-size: 12px;
+            color: gray;
+        }
 
-    .leave__req--card-header .status {
-        font-size: 12px;
-        font-weight: bold;
-    }
+        .leave__req--card-header .status {
+            font-size: 12px;
+            font-weight: bold;
+        }
 
     .status-approved {
         color: green;
@@ -54,17 +55,27 @@
         margin-top: 8px;
     }
 
-    .leave__req--card-body .reason {
-        margin-top: 8px;
-        cursor: pointer;
-        color: #007bff;
+        .leave__req--card-body .reason {
+            margin-top: 8px;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+            .leave__req--card-body .reason.collapsed {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+    .leave__req--card-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
     }
 
-    .leave__req--card-body .reason.collapsed {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        .leave__req--card-footer button {
+            margin-left: 8px;
+        }
 </style>
 
 <div class="leave__req--container">
@@ -82,14 +93,31 @@
             <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
         </div>
         <div class="leave__req--card-body">
+            <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
+            <p><strong>Position:</strong> @leaveRequest.Employee.Position</p>
             <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
             <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
             <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
             <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
             <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+            {
+                <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
+            }
         </div>
+        <div class="leave__req--card-footer">
+            @if (ViewBag.Filter == "Pending")
+            {
+                <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
+                <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
+            }
+        </div>
+
     </div>
 }
+
+<!-- DevExtreme Popup for Rejection Reason -->
+<div id="reject-popup"></div>
 
 <script>
     function toggleReason(element) {
@@ -100,8 +128,57 @@
         window.location.href = "@Url.Action("ReviewLeave")?filter=" + this.value;
     });
 
-    // Set the selected filter option
     document.getElementById("filter").value = "@ViewBag.Filter";
+
+    function acceptLeaveRequest(leaveRequestId) {
+        fetch(`/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`, { method: "POST" })
+            .then(response => {
+                if (response.ok) {
+                    alert("Leave request accepted successfully!");
+                    window.location.reload(); 
+                } else {
+                    alert("Failed to accept leave request.");
+                }
+            });
+    }
+
+    function rejectLeaveRequest(leaveRequestId) {
+        // Initialize DevExtreme Popup
+        $("#reject-popup").dxPopup({
+            title: "Enter Rejection Reason",
+            visible: false,
+            width: 400,
+            height: 300,
+            contentTemplate: function (contentElement) {
+                contentElement.append(`
+                    <textarea id="rejection-reason" style="width: 100%; height: 150px;"></textarea>
+                    <button id="submit-reject" class="btn btn-danger" style="margin-top: 16px;">Submit</button>
+                `);
+
+                $("#submit-reject").click(function () {
+                    const rejectionReason = $("#rejection-reason").val();
+                    if (!rejectionReason) {
+                        alert("Please enter a rejection reason.");
+                        return;
+                    }
+
+                    fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, { method: "POST" })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Leave request rejected successfully!");
+                                window.location.reload(); // Refresh the page
+                            } else {
+                                alert("Failed to reject leave request.");
+                            }
+                        });
+
+                    $("#reject-popup").dxPopup("hide");
+                });
+            }
+        });
+
+        $("#reject-popup").dxPopup("show");
+    }
 </script>
 
 @functions {
