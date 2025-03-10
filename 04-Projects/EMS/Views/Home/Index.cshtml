@@ -2,7 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-
 <div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative;">
     <div id="btnIn" style="background-color: lightgreen; border: none; padding: 10px 20px; border-radius: 5px;">
     </div>
@@ -12,69 +11,75 @@
 
     <div id="btnSetStatus" style="background-color: lightblue; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
     </div>
+</div>
 
+<!-- Hours Worked Section -->
+<div style="text-align: center; margin-top: 20px;">
+    <h3>Hours Worked: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3>
 </div>
 
 <!-- Office Infrastructure Illustration -->
-    <img src="~/img/office-bg.jpg"
-         alt="Office Infrastructure Illustration"
-         style="width: 100%; height: auto;" />
+<img src="~/img/office-bg.jpg"
+     alt="Office Infrastructure Illustration"
+     style="width: 100%; height: auto;" />
 
 <script>
-
     const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee';
     var currentStatus = '@ViewData["CurrentStatus"]'; // Get the status from Razor
 
     var dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" }));
 
-        // Initialize the DevExtreme dropdown
-        $("#btnSetStatus").dxSelectBox({
-            items: dropdownOptions,
-            value: currentStatus, // Selected value from Database
-            onValueChanged: function (e) {
-                // Determine the controller based on the user's role
-                var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'");
+    // Initialize the DevExtreme dropdown
+    $("#btnSetStatus").dxSelectBox({
+        items: dropdownOptions,
+        value: currentStatus, // Selected value from Database
+        onValueChanged: function (e) {
+            // Determine the controller based on the user's role
+            var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'");
 
-                // Call the SetStatus action with the selected status
-                fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" })
-                    .then(response => {
-                        if (response.ok) {
-                            alert("Status updated successfully!");
-                        } else {
-                            alert("Failed to update status.");
-                        }
-                    });
-            }
-        });
+            // Call the SetStatus action with the selected status
+            fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Status updated successfully!");
+                    } else {
+                        alert("Failed to update status.");
+                    }
+                });
+        }
+    });
 
     // *************** TIME LOG Button Event Handlers ***************
     $(function() {
-
         $("#btnIn").dxButton({
             text: "In",
-			typeof: "default",
-			onClick: function(e) {
-				window.location.href = '/Employee/ClockIn';
-			}
-        });
-
-		$("#btnOut").dxButton({
-			text: "Out",
-			typeof: "default",
+            typeof: "default",
             onClick: function(e) {
-				window.location.href = '/Employee/ClockOut';
+                window.location.href = '/Employee/ClockIn';
             }
         });
-		// $("#btnSetStatus").dxButton({
-		// 	text: "Set Status",
-		// 	typeof: "default",
-		// 	onClick: function(e) {
-		// 		if (userRole === 'Manager') {
-		// 			window.location.href = '/Manager/SetStatus';
-		// 		} else {
-		// 			window.location.href = '/Employee/SetStatus';
-		// 		}
-        //           }
-        //       });
+
+        $("#btnOut").dxButton({
+            text: "Out",
+            typeof: "default",
+            onClick: function(e) {
+                window.location.href = '/Employee/ClockOut';
+            }
+        });
     });
+
+    // Function to update hours worked in real-time
+    function updateHoursWorked() {
+        fetch('/Employee/GetHoursWorked')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('hoursWorked').innerText = data.hoursWorked;
+            });
+    }
+
+    // Update hours worked every minute
+    setInterval(updateHoursWorked, 60000);
+
+    // Initial call to update hours worked
+    updateHoursWorked();
 </script>

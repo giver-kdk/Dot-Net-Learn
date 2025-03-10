@@ -1,34 +1,38 @@
-﻿@model EMS.Application.DTOs.EmployeeDto
+﻿@model EMS.Application.DTOs.EmployeeTimelogDto
 
 @{
     ViewData["Title"] = "Employee Attendance";
 }
 
 <div class="text-center">
-    <h1>@Model.FullName: @Model.Position</h1>
+    <h1>@Model.Employee.FullName: @Model.Employee.Position</h1>
 </div>
 
 <div id="chart"></div>
 
 <div class="text-center">
-    <h2><strong>Attendance Percentage: @Model.AttendancePercentage.ToString("0.00")%</strong></h2>
+    <h2><strong>Attendance Percentage: @Model.Employee.AttendancePercentage.ToString("0.00")%</strong></h2>
 </div>
 
 <div class="text-center">
-    <p><strong>Total Working Hours: @Model.TotalWorkingHours Hrs</p>
+    <p><strong>Total Working Hours: @Model.Employee.TotalWorkingHours Hrs</p>
 </div>
+
+<h3>My Time Logs</h3>
+<div id="dataGridEmployee"></div>
+
 
 <script>
     $(function () {
         // Doughnut chart data transformation and visualization
-        var totalDays = @Model.PresentDaysCount + @Model.AbscentDaysCount;
+        var totalDays = @Model.Employee.PresentDaysCount + @Model.Employee.AbscentDaysCount;
 
-        var presentRatio = (@Model.PresentDaysCount / totalDays);
-        var absentRatio = (@Model.AbscentDaysCount / totalDays);
+        var presentRatio = (@Model.Employee.PresentDaysCount / totalDays);
+        var absentRatio = (@Model.Employee.AbscentDaysCount / totalDays);
 
         var attendanceData = [
-            { category: `Present: ${@Model.PresentDaysCount}`, value: presentRatio },
-            { category: `Absent: ${@Model.AbscentDaysCount}`, value: absentRatio }
+            { category: `Present: ${@Model.Employee.PresentDaysCount}`, value: presentRatio },
+            { category: `Absent: ${@Model.Employee.AbscentDaysCount}`, value: absentRatio }
         ];
         console.log(attendanceData);
 
@@ -55,5 +59,33 @@
                 position: "bottom"
             }
         });
+
+
+        var timeLogs = @Html.Raw(Json.Serialize(Model.TimeLogs));
+
+            // Initialize DevExtreme DataGrid
+            $("#dataGridEmployee").dxDataGrid({
+                dataSource: timeLogs,
+                columns: [
+                    { dataField: "ClockIn", caption: "Clock In", format: "yyyy-MM-dd HH:mm:ss" },
+                    { dataField: "ClockOut", caption: "Clock Out", format: "yyyy-MM-dd HH:mm:ss" },
+                    { dataField: "WorkingHoursPerDay", caption: "Total Hours Worked", format: "#0.00" }
+                ],
+                paging: {
+                    enabled: true,
+                    pageSize: 10
+                },
+                filterRow: {
+                    visible: true
+                },
+                headerFilter: {
+                    visible: true
+                },
+                showBorders: true,
+                hoverStateEnabled: true,
+                selection: {
+                    mode: "single"
+                }
+            });
     });
 </script>

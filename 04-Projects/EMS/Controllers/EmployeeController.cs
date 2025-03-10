@@ -140,7 +140,21 @@ namespace EMS.Controllers
                 TotalWorkingHours = employee.TotalWorkingHours,
                 Status = employee.Status
             };
-            return View(employeeDto);
+
+            // Fetch employee's attendance timelog
+            var timeLogs = await _context.TimeLogs
+                .Where(t => t.EmployeeId == employeeId)
+                .OrderByDescending(t => t.ClockIn)
+                .ToListAsync();
+
+            // Create the combined ViewModel
+            var viewModel = new EmployeeTimelogDto
+            {
+                Employee = employeeDto,
+                TimeLogs = timeLogs
+            };
+
+            return View(viewModel);
         }
         // Helper method to calculate absent days
         private int CalculateAbsentDays(Employee employee)
