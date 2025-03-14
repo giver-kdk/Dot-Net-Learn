@@ -1,4 +1,6 @@
-﻿using EMS.Application.DTOs;
+﻿using Azure.Core;
+using EMS.Application.DTOs;
+using EMS.Application.UseCases;
 using EMS.Domain.Enums;
 using EMS.Domain.Models;
 using EMS.Insfrastructure.Data;
@@ -14,11 +16,14 @@ namespace EMS.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Employee> _userManager; // UserManager for Identity
+        private readonly SendEmailUseCase _sendEmailUseCase;    // Abstraction for sending email
 
-        public ManagerController(ApplicationDbContext context, UserManager<Employee> userManager)
+
+        public ManagerController(ApplicationDbContext context, UserManager<Employee> userManager, SendEmailUseCase sendEmailUseCase)
         {
             _context = context;
             _userManager = userManager;
+            _sendEmailUseCase = sendEmailUseCase;
         }
 
         [HttpPost]
@@ -116,6 +121,43 @@ namespace EMS.Controllers
             _context.LeaveRequests.Update(leaveRequest);
             await _context.SaveChangesAsync();
 
+            // Send accepted email to the employee
+            try
+            {
+                var employee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Id == leaveRequest.EmployeeId);
+
+                if (employee == null)
+                {
+                    return NotFound("Employee not found.");
+                }
+                var subject = "Leave Request Approved";
+                var body = $@"
+                <html>
+                    <body>
+                        <h1>Leave Request Approved</h1>
+                        <p>Dear {employee.FullName},</p>
+                        <p>Your leave request has been <strong>approved</strong>. Below are the details:</p>
+                        <ul>
+                            <li><strong>Start Date:</strong> {leaveRequest.StartDate.ToShortDateString()}</li>
+                            <li><strong>End Date:</strong> {leaveRequest.EndDate.ToShortDateString()}</li>
+                            <li><strong>Leave Type:</strong> {leaveRequest.LeaveType.ToString()}</li>
+                            <li><strong>Status:</strong> Approved</li>
+                        </ul>
+                        <p>If you have any questions, please contact HR.</p>
+                        <p>Best regards,<br>Company Name</p>
+                    </body>
+                </html>";
+
+                string employeeEmail = employee?.Email ?? "giverkhadka13@gmail.com";
+
+                await _sendEmailUseCase.Execute(employeeEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"*** Email Error ***: {ex.Message}");
+            }
+
             return Ok();
         }
 
@@ -136,6 +178,41 @@ namespace EMS.Controllers
             _context.LeaveRequests.Update(leaveRequest);
             await _context.SaveChangesAsync();
 
+            // Send rejected email to the employee
+            try{
+                var employee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Id == leaveRequest.EmployeeId);
+
+                if (employee == null)
+                {
+                    return NotFound("Employee not found.");
+                }
+                var subject = "Leave Request Rejected";
+                var body = $@"
+                <html>
+                    <body>
+                        <h1>Leave Request Rejected</h1>
+                        <p>Dear {employee.FullName},</p>
+                        <p>We regret to inform you that your leave request has been <strong>rejected</strong>. Below are the details:</p>
+                        <ul>
+                            <li><strong>Start Date:</strong> {leaveRequest.StartDate.ToShortDateString()}</li>
+                            <li><strong>End Date:</strong> {leaveRequest.EndDate.ToShortDateString()}</li>
+                            <li><strong>Leave Type:</strong> {leaveRequest.LeaveType.ToString()}</li>
+                            <li><strong>Status:</strong> Rejected</li>
+                            <li><strong>Rejection Reason:</strong> {rejectionReason}</li>
+                        </ul>
+                        <p>If you have any questions, please contact HR.</p>
+                        <p>Best regards,<br>Company Name</p>
+                    </body>
+                </html>";
+
+                await _sendEmailUseCase.Execute(employee.Email, subject, body);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"*** Email Error ***: {ex.Message}");
+            }
+            
             return Ok();
         }
 
@@ -309,9 +386,9 @@ namespace EMS.Controllers
                 {
                     // By default, we have to modify all properties to update Employee.
                     // Non-modified properties are set to null. So, Update only modified properties one by one
-                    if (employee.Name != null)
+                    if (employee.FullName != null)
                     {
-                        existingEmployee.Name = employee.Name;
+                        existingEmployee.FullName = employee.FullName;
                     }
                     if (employee.Position != null)
                     {
@@ -333,7 +410,7 @@ namespace EMS.Controllers
             {
                 Console.WriteLine("*** Edit Error ***");
 
-                if (!EmployeeExists(employee.Id))
+                if (employee != null)
                 {
                     return NotFound();
                 }

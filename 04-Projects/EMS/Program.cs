@@ -6,6 +6,14 @@ using EMS.Application.Interfaces;
 using EMS.Insfrastructure.Repositories;
 using EMS.Domain.Models;
 using EMS.Infrastructure.Data;
+using EMS.Insfrastructure.Services;
+using System.Net.Mail;
+using EMS.Application.UseCases;
+using DotNetEnv;
+
+
+
+Env.Load();                                         // ******* Load .env file *******
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,13 +37,20 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ITimeLogRepository, TimeLogRepository>();
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 
+// ************** Add Environment Variablees **************
+builder.Configuration.AddEnvironmentVariables();
+
+// ************** Add Email Service **************
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<SendEmailUseCase>(); 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

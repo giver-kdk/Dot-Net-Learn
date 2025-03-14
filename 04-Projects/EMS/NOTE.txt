@@ -79,3 +79,41 @@ Disable auto generation of Assembly file in all project's .csproj file:
 - Latest Update:
 	- Issues with Repositories Implementation in EMS.Insfrastructure
 	- Organize the package installation on only required projects
+
+
+
+************************************ SMTP SETUP ************************************
+
+- Create email service interface in Application Layer (Interfaces/IEmailService.cs)
+
+- Define the 'Use Case' in the Application Layer for abstraction (UseCases/SendEmailUseCase.cs)
+
+- Implement the email service in Infrastructure Layer by 
+fetching SMTP settings from appsettings.json (Services/EmailService.cs)
+
+- Set .env file for sensitive credentials like mail and password: 
+	- Get an 'App Password' from Gmail account by enabling '2-Step Verification'
+	- Install 'DotNetEnv' package in the main project
+	- Add the following code in Program.cs file:
+		- Env.Load();
+	- Add gmail and password(generated app password) in '.env' file and ignore it in .gitignore file
+
+- Add the environment variable in Program.cs file as: 
+	- builder.Configuration.AddEnvironmentVariables();
+
+- Update the appsettings.json file to include the SMTP settings as:
+	-	{
+		  "SmtpSettings": {
+			"Server": "smtp.gmail.com",
+			"Port": 587,
+			"EnableSSL": true
+		  }
+		}
+
+- Update the Program.cs file to include the SMTP settings as:
+	- builder.Services.AddScoped<IEmailService, EmailService>();
+	- builder.Services.AddScoped<SendEmailUseCase>(); 
+
+- Use the email service in the main project's controller to send email to the user
+	- Send mail when manager approves/rejects the leave request of the employee
+
