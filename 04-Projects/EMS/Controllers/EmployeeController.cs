@@ -2,6 +2,7 @@
 using EMS.Domain.Enums;
 using EMS.Domain.Models;
 using EMS.Insfrastructure.Data;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -96,7 +97,7 @@ namespace EMS.Controllers
                     LeaveType = leaveTypeEnum,
                     Reason = Convert.ToString(model["Reason"]),
                     Status = LeaveStatus.Pending,
-                    RequestDate = DateTime.UtcNow
+                    RequestDate = DateTime.Now
                 };
 
                 _context.LeaveRequests.Add(leaveRequest);
@@ -198,7 +199,7 @@ namespace EMS.Controllers
             var timeLog = new TimeLog
             {
                 EmployeeId = employeeId,
-                ClockIn = DateTime.UtcNow,
+                ClockIn = DateTime.Now,
                 ClockOut = null,
                 WorkingHoursPerDay = null
             };
@@ -223,7 +224,7 @@ namespace EMS.Controllers
                 return BadRequest("Invalid user ID.");
             }
 
-            var today = DateTime.UtcNow.Date;
+            var today = DateTime.Now.Date;
 
             // Find the most recent TimeLog entry for the current employee and today's date
             var timeLog = await _context.TimeLogs
@@ -238,7 +239,7 @@ namespace EMS.Controllers
                 return NotFound("No ClockIn record found for today.");
             }
 
-            timeLog.ClockOut = DateTime.UtcNow;
+            timeLog.ClockOut = DateTime.Now;
 
             timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
 

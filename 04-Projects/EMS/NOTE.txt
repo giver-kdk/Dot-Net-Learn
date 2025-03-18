@@ -117,3 +117,14 @@ fetching SMTP settings from appsettings.json (Services/EmailService.cs)
 - Use the email service in the main project's controller to send email to the user
 	- Send mail when manager approves/rejects the leave request of the employee
 
+
+
+*********************************** Hanfire for Auto Task Scheduler ***********************************
+
+- Install Hangfire package in the main project
+
+- Add hangfire service in Program.cs file:
+	- builder.Services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
+	- builder.Services.AddHangfireServer();       
+
+- 

@@ -7,6 +7,7 @@ using EMS.Insfrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
 
 
 
@@ -151,7 +152,8 @@ namespace EMS.Controllers
 
                 string employeeEmail = employee?.Email ?? "giverkhadka13@gmail.com";
 
-                await _sendEmailUseCase.Execute(employeeEmail, subject, body);
+                // ************ Send the email in background using Hangfire ************
+                BackgroundJob.Enqueue(() => _sendEmailUseCase.Execute(employeeEmail, subject, body));
             }
             catch (Exception ex)
             {
@@ -206,7 +208,7 @@ namespace EMS.Controllers
                     </body>
                 </html>";
 
-                await _sendEmailUseCase.Execute(employee.Email, subject, body);
+                BackgroundJob.Enqueue(() => _sendEmailUseCase.Execute(employee.Email, subject, body));
             }
             catch (Exception ex)
             {

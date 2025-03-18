@@ -10,6 +10,7 @@ using EMS.Insfrastructure.Services;
 using System.Net.Mail;
 using EMS.Application.UseCases;
 using DotNetEnv;
+using Hangfire;
 
 
 
@@ -42,7 +43,14 @@ builder.Configuration.AddEnvironmentVariables();
 
 // ************** Add Email Service **************
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<SendEmailUseCase>(); 
+builder.Services.AddScoped<SendEmailUseCase>();
+
+// ************** Add Hangfire **************
+builder.Services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
+builder.Services.AddHangfireServer();
+
+// ************** Add Recurrign Job Task Service **************
+builder.Services.AddScoped<IRecurringJobService, RecurringJobService>();
 
 
 var app = builder.Build();
@@ -77,4 +85,15 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+// ****************** Initiate the recurring schedule for AutoClockOut ******************
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    recurringJobManager.AddOrUpdate<IRecurringJobService>(
+        "AutoClockOut",
+        service => service.AutoClockOut(),
+        "30 19 * * *",             // Cron expressionf for 7:30PM
+        TimeZoneInfo.Local          // Set Local Time Zone
+    );
+}
 app.Run();

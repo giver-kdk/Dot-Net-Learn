@@ -44,9 +44,10 @@ namespace EMS.Controllers
 
             ViewData["CurrentStatus"] = employee.ToString(); // Convert enum to string
 
+            var today = DateTime.Today;
             // Calculate hours worked
             var timeLog = await _context.TimeLogs
-                .Where(t => t.EmployeeId == employeeId)
+                .Where(t => t.EmployeeId == employeeId && t.ClockIn.Date == today)
                 .OrderByDescending(t => t.ClockIn)
                 .FirstOrDefaultAsync();
 

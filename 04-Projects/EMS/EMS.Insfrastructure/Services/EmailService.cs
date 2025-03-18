@@ -46,6 +46,7 @@ namespace EMS.Insfrastructure.Services
             mailMessage.To.Add(to);
 
             await _smtpClient.SendMailAsync(mailMessage);
+            Console.WriteLine("Email sent successfully");
         }
     }
 }
