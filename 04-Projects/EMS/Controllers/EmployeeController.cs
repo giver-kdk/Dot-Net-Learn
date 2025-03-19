@@ -189,6 +189,20 @@ namespace EMS.Controllers
                 return BadRequest("Invalid user ID.");
             }
 
+
+            // **************** Avoid multiple clock ins **************** 
+            var today = DateTime.Today;
+
+            // Check if the employee has already clocked in today
+            var hasClockedInToday = await _context.TimeLogs
+                .AnyAsync(t => t.EmployeeId == employeeId && t.ClockIn.Date == today);
+
+            if (hasClockedInToday)
+            {
+                return BadRequest("You have already clocked in today.");
+            }
+
+
             // Increment user's present days in attendace
             var employee = await _context.Employees
                .FirstOrDefaultAsync(e => e.Id == employeeId);
@@ -208,7 +222,7 @@ namespace EMS.Controllers
             _context.Employees.Update(employee);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return Ok("Clocked In Successfully!");
         }
 
         public async Task<IActionResult> ClockOut()
@@ -224,19 +238,25 @@ namespace EMS.Controllers
                 return BadRequest("Invalid user ID.");
             }
 
+
+            // *********************** Avoid ClockOut "before ClockIn" and "after ClockOut" ***********************
             var today = DateTime.Now.Date;
 
             // Find the most recent TimeLog entry for the current employee and today's date
             var timeLog = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId &&
-                             t.ClockIn.Date == today &&
-                             t.ClockOut == null)                // Ensure ClockOut is null
+                             t.ClockIn.Date == today)
                 .OrderByDescending(t => t.ClockIn)
                 .FirstOrDefaultAsync();
 
             if (timeLog == null)
             {
-                return NotFound("No ClockIn record found for today.");
+                return BadRequest("You have to clock in before clocking out!");
+            }
+            // Here, 'ClockOut' is a nullable value. So, we need to check if it has a value or not as well
+            else if(timeLog.ClockOut.HasValue && timeLog.ClockOut.Value.Date == today)
+            {
+                return BadRequest("You have already clocked out today.");
             }
 
             timeLog.ClockOut = DateTime.Now;
@@ -245,7 +265,7 @@ namespace EMS.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return Ok("Clocked Out Successfully!");
         }
 
 

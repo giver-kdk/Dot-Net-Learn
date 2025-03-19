@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
+using System.Text.Json.Serialization;
 
 
 
@@ -322,19 +323,17 @@ namespace EMS.Controllers
             return View(timeLogs);
         }
 
-        // ************* Manager Employees *************
+        // ************* Manage Employees *************
 
-        // GET: Employees
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> GetEmployees()
         {
             return View(await _context.Employees.ToListAsync());
         }
 
-        // GET: Employees/Details/5
         [HttpGet]
         [Route("[controller]/id")]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> GetEmployeeDetail(int? id)
         {
             if (id == null)
             {
@@ -351,11 +350,10 @@ namespace EMS.Controllers
             return View(employee);
         }
 
-        // POST: Employees/Create
         [HttpPost]
         // Remove 'ValidateAntiForgeryToken' for allowing DELETE requests from client
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Position,Salary")] Employee employee)
+        public async Task<IActionResult> RegisterEmployee([Bind("Id,FullName,Email,PhoneNumber,Position,Salary")] Employee employee)
         {
             if (ModelState.IsValid)
             {
@@ -368,9 +366,8 @@ namespace EMS.Controllers
         }
 
 
-        // POST: Employees/Edit/5
         [HttpPut]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Position,Salary")] Employee employee)
+        public async Task<IActionResult> UpdateEmployee(int id, [Bind("Id,FullName,Email,PhoneNumber,Position,Salary")] Employee employee)
         {
             Console.WriteLine("*** Edit Action ***");
 
@@ -387,12 +384,20 @@ namespace EMS.Controllers
                 if (existingEmployee != null)
                 {
                     // By default, we have to modify all properties to update Employee.
-                    // Non-modified properties are set to null. So, Update only modified properties one by one
-                    if (employee.FullName != null)
+                    // Non-modified properties are set to 0, null or "" as per definition in Model. So, Update only modified properties one by one
+                    if (employee.FullName != "")
                     {
                         existingEmployee.FullName = employee.FullName;
                     }
-                    if (employee.Position != null)
+                    if (employee.Email != null)
+                    {
+                        existingEmployee.Email = employee.Email;
+                    }
+                    if (employee.PhoneNumber != null)
+                    {
+                        existingEmployee.PhoneNumber = employee.PhoneNumber;
+                    }
+                    if (employee.Position != "")
                     {
                         existingEmployee.Position = employee.Position;
                     }
@@ -404,7 +409,7 @@ namespace EMS.Controllers
                     _context.Entry(existingEmployee).State = EntityState.Modified;
                 }
 
-                await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
                 // *** 'OK' status with new data will signal Data Grid UI to update ***     
                 return Ok(existingEmployee);
             }
@@ -423,11 +428,10 @@ namespace EMS.Controllers
             }
         }
 
-        // POST: Employees/Delete/5
         [HttpDelete]
         // Remove 'ValidateAntiForgeryToken' for allowing DELETE requests from client
         //[ValidateAntiForgeryToken]                            
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> RemoveEmployee(int? id)
         {
             Console.WriteLine("*** Delete Method ***");
 

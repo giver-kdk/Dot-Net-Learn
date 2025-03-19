@@ -54,32 +54,38 @@
         $("#btnIn").dxButton({
             text: "In",
             typeof: "default",
-            onClick: function(e) {
-                window.location.href = '/Employee/ClockIn';
+            onClick: async function(e) {
+                const response = await fetch(`/Employee/ClockIn`, { method: "GET" });
+                const message = await response.text();
+
+                alert(message);                 // Message as per Ok() or BadRequest() from Controller
             }
         });
 
         $("#btnOut").dxButton({
             text: "Out",
             typeof: "default",
-            onClick: function(e) {
-                window.location.href = '/Employee/ClockOut';
+            onClick: async function(e) {
+                const response = await fetch(`/Employee/ClockOut`, { method: "GET" });
+                const message = await response.text();
+
+                alert(message);
             }
         });
     });
 
     // Function to update hours worked in real-time
-    function updateHoursWorked() {
-        fetch('/Employee/GetHoursWorked')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('hoursWorked').innerText = data.hoursWorked;
-            });
-    }
+    // function updateHoursWorked() {
+    //     fetch('/Employee/GetHoursWorked')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             document.getElementById('hoursWorked').innerText = data.hoursWorked;
+    //         });
+    // }
 
     // Update hours worked every minute
-    setInterval(updateHoursWorked, 60000);
+    // setInterval(updateHoursWorked, 60000);
 
     // Initial call to update hours worked
-    updateHoursWorked();
+    // updateHoursWorked();
 </script>

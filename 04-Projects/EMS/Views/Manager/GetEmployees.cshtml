@@ -8,44 +8,41 @@
 
 <h1>Employees</h1>
 
-<!-- 'dataGrid' is now a DevExtreme component for DataGrid -->
-<div id="dataGrid"></div>               <!-- Checkout the jQuery for this line in 'site.js' -->
+<div id="dataGrid"></div>               
 @section Scripts {
     <script>
             // Store the Model data into JS variable by converting it into JSON format
             var employeeData = @Html.Raw(Json.Serialize(Model));
 
 
-                 // Data Grid Script
+        // Data Grid Script
         $(function () {
             // 'employeeData' JS variable is already created in Employee/Index.cshtml file
             console.log(employeeData);
 
             $("#dataGrid").dxDataGrid({
-                //dataSource: employeeData,
                 dataSource: new DevExpress.data.CustomStore({
-                    key: "Id",
+                    key: "id",
                     load: function () {
-                        // return $.getJSON("/Employees");
                         return employeeData;
                     },
                     insert: function (values) {
                         return $.ajax({
-                            url: "/Employees/Create",
+                            url: "/Manager/RegisterEmployee",
                             method: "POST",
                             data: values
                         });
                     },
                     update: function (key, values) {
                         return $.ajax({
-                            url: `/Employees/Edit/${key}`,
+                            url: `/Manager/UpdateEmployee/${key}`,
                             method: "PUT",
                             data: values
                         });
                     },
                     remove: function (key) {
                         return $.ajax({
-                            url: `/Employees/Delete/${key}`,
+                            url: `/Manager/RemoveEmployee/${key}`,
                             method: "DELETE"
                         });
                     }
@@ -60,10 +57,10 @@
                 },
                 // Fields to be displayed in the grid
                 columns: [
-                    { dataField: "Id", allowEditing: false },
+                    { dataField: "id", allowEditing: false },           // Given default by Identity and JSON Property Name is lowercased
                     { dataField: "FullName", caption: "Name" },
-                    { dataField: "Email", caption: "Email" },
-                    { dataField: "Phone Number", caption: "Phone Number" },
+                    { dataField: "email", caption: "Email" },           // Given default by Identity and JSON Property Name is lowercased
+                    { dataField: "PhoneNumber", caption: "Phone Number" },
                     { dataField: "Position", caption: "Position" },
                     { dataField: "Salary", caption: "Salary", dataType: "number" }
                 ],

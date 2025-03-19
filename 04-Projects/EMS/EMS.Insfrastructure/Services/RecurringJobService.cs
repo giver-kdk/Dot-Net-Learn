@@ -36,7 +36,7 @@ namespace EMS.Insfrastructure.Services
             // Auto-clock-out for each employee
             foreach (var timeLog in timeLogs)
             {
-                timeLog.ClockOut = today.AddDays(1); // Set ClockOut to midnight
+                timeLog.ClockOut = today.Date.AddHours(19).AddMinutes(30); // 7:30 PM today
                 timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
             }
 
