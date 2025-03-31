@@ -146,11 +146,6 @@ namespace EMS.Controllers
             return RedirectToAction("EditView");
         }
 
-        private bool EmployeeExists(int id)
-        {
-            return _context.Employees.Any(e => e.Id == id);
-        }
-
         private bool IsValidImage(IFormFile file)
         {
             if (file.Length > 5 * 1024 * 1024) // 5MB
