@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
 using System.Text.Json.Serialization;
+using EMS.Application.Interfaces;
 
 
 
@@ -19,13 +20,15 @@ namespace EMS.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Employee> _userManager; // UserManager for Identity
         private readonly SendEmailUseCase _sendEmailUseCase;    // Abstraction for sending email
+        private readonly INotificationService _notificationService;
 
 
-        public ManagerController(ApplicationDbContext context, UserManager<Employee> userManager, SendEmailUseCase sendEmailUseCase)
+        public ManagerController(ApplicationDbContext context, UserManager<Employee> userManager, SendEmailUseCase sendEmailUseCase, INotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
             _sendEmailUseCase = sendEmailUseCase;
+            _notificationService = notificationService;
         }
 
         [HttpPost]
@@ -63,20 +66,9 @@ namespace EMS.Controllers
             return Ok(); 
         }
 
-        public async Task<IActionResult> ReviewLeave(string filter = "Pending")
+        // Just logic to get the list of leave requests based on the filter
+        public async Task<List<LeaveRequest>> GetLeaveRequestsList(string filter = "Pending")
         {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("Index", "Login");
-            }
-            if (!int.TryParse(userId, out int employeeId))
-            {
-                return BadRequest("Invalid user ID.");
-            }
-
-            Console.WriteLine($"Employee ID: {employeeId}");
-
             // Fetch leave requests with filtering
             var leaveRequests = _context.LeaveRequests
                 .Include(lr => lr.Employee) // Ensures Employee data is loaded
@@ -93,7 +85,6 @@ namespace EMS.Controllers
                     .OrderByDescending(lr => lr.RequestDate);
                     break;
             }
-
             // Store filter value in ViewBag for frontend use
             ViewBag.Filter = filter;
 
@@ -101,10 +92,35 @@ namespace EMS.Controllers
 
             Console.WriteLine($"Total Leave Requests Found: {leaveRequestList.Count}");
 
+            return leaveRequestList;
+        }
+
+        public async Task<IActionResult> ReviewLeave(string filter = "Pending")
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+            if (!int.TryParse(userId, out int employeeId))
+            {
+                return BadRequest("Invalid user ID.");
+            }
+
+            Console.WriteLine($"Employee ID: {employeeId}");
+
+            var leaveRequestList = await GetLeaveRequestsList(filter);
             return View(leaveRequestList);
         }
 
-
+        [HttpGet]
+        public async Task<IActionResult> ReviewLeavePartial(string filter)
+        {
+            Console.WriteLine($"Partial Method Called***********************");
+            //ViewBag.Filter = filter;
+            var leaveRequests = await GetLeaveRequestsList(filter);                    // Calling existing action method
+            return PartialView("Partials/_ReviewLeavePartial", leaveRequests);
+        }
 
         public async Task<IActionResult> AcceptLeaveRequest(int leaveRequestId)
         {
@@ -161,6 +177,18 @@ namespace EMS.Controllers
                 Console.WriteLine($"*** Email Error ***: {ex.Message}");
             }
 
+
+            // ************ Send the notification in background using Hangfire ************
+            try
+            {
+                var notificationMessage = "Your leave request has been approved.";
+                BackgroundJob.Enqueue(() => _notificationService.NotifyEmployeeAsync(leaveRequest.EmployeeId.ToString(), notificationMessage));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"*** Notification Error ***: {ex.Message}");
+            }
+
             return Ok();
         }
 
@@ -215,7 +243,18 @@ namespace EMS.Controllers
             {
                 Console.WriteLine($"*** Email Error ***: {ex.Message}");
             }
-            
+
+            // ************ Send the notification in background using Hangfire ************
+            try
+            {
+                var notificationMessage = $"Your leave request has been rejected. Reason: {rejectionReason}";
+                BackgroundJob.Enqueue(() => _notificationService.NotifyEmployeeAsync(leaveRequest.EmployeeId.ToString(), notificationMessage));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"*** Notification Error ***: {ex.Message}");
+            }
+
             return Ok();
         }
 
@@ -231,14 +270,15 @@ namespace EMS.Controllers
                     AbscentDaysCount = CalculateAbsentDays(e),
                     AttendancePercentage = CalculateAttendancePercentage(e),
                     TotalWorkingHours = e.TotalWorkingHours,
-                    Status = e.Status
+                    Status = e.Status,
+                    ProfilePicture = e.ProfilePicture
                 })
                 .ToListAsync();
 
             // Fetch all TimeLogs for today's date
             var today = DateTime.UtcNow.Date;
             var timeLogs = await _context.TimeLogs
-                .Where(t => t.ClockIn.Date == today)
+                .Where(t => t.LogType == "ClockIn" && t.Log.Date == today)
                 .ToListAsync();
 
             Console.WriteLine($"Total TimeLogs Found: {timeLogs.Count}");
@@ -315,7 +355,7 @@ namespace EMS.Controllers
 
             var timeLogs = _context.TimeLogs
                 .Where(t => t.EmployeeId == id)
-                .OrderByDescending(t => t.ClockIn) // Order by latest clock-in
+                .OrderByDescending(t => t.Log) // Order by latest log
                 .ToList();
 
             ViewBag.Employee = employee; // Pass the employee object to the view

@@ -127,4 +127,53 @@ fetching SMTP settings from appsettings.json (Services/EmailService.cs)
 	- builder.Services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 	- builder.Services.AddHangfireServer();       
 
-- 
+- Use the Hangire service in the main project's controller to schedule the task
+
+
+
+************************************ SignalR SETUP ************************************
+- Concept: 
+	-  SignalR is a real-time bidirectional communication system when user is connected.
+	- So, it should be sued in apps where user is connected and requries real-time updates.
+	- It is not used in apps where user is not connected (Eg: Background Notification)
+	- It is not good for Video Streaming because it is one-directional communication.
+	- SignalR is used in chat application, notification system, stock market, google docs live update, etc.
+
+- SIgnalR Hub: Central component to connect client and server to transfer data
+- Clients: Web, Mobile, Desktop, etc connected to the server with SignalR
+- Groups: Clients are grouped together into subgroups to send message to those specific groups
+
+- Create Notification Model for storing notification in database
+- Create Notification Interface and Service as its implementation
+	- Notification service was created for SignalR integration
+- Integrate notification with manager's leave request approval/rejection action
+- Create LeaveNotificationHub for message pass and added it with signalR in Program.cs
+- Add signalr javascript CDN on layout.cshtml clientside
+- Creat Notification View to list all the notification rom the database for particular employee
+
+Todo: Goto NotificationService.cs and LeaveRequestHub.cs for complete implementation
+
+
+
+************************************ CLOUDINARY IMAGE SETUP ************************************
+- Install following packages: 
+	- CloudinaryDotNet in main project and Infrastructure Layer
+	- Microsoft.AspNetCore.Http in Application Layer
+
+- Add the cloudinary service in Program.cs file
+	- Get the cloudinary credentials from the cloudinary website
+	- Store the cloudinary credentials in the .env file
+
+- Create the image uploader interface (IImageService.cs)
+
+- Implement the image uploader service in Infrastructure Layer (Services/CLoudinaryService.cs)
+
+
+
+
+********************************* NOTIFY JS SETUP *********************************
+- Download the notify.js file from https://notifyjs.jpillora.com/
+- Add the notify.js file in the wwwroot/js folder of the main project
+- Add the notify.js file in the layout.cshtml file of the main project
+- Use notify.js jqueries to show notification on View pages
+

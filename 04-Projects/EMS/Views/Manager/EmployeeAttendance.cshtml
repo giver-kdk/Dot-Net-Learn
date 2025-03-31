@@ -1,4 +1,5 @@
 ﻿@model List<EMS.Application.DTOs.EmployeeDto>
+@using EMS.Domain.Enums;
 
 @{
     ViewData["Title"] = "Employee Attendance";
@@ -6,58 +7,62 @@
 
 <style>
     .attendance-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
     }
 
     .attendance-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
     }
 
     .attendance-list {
-        list-style: none;
-        padding: 0;
+    list-style: none;
+    padding: 0;
     }
 
     .attendance-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-        .attendance-item:hover {
-            background-color: #f9f9f9;
-            cursor: pointer;
-        }
+    .attendance-item:hover {
+    background-color: #f9f9f9;
+    cursor: pointer;
+    }
 
-        .attendance-item .details {
-            flex: 1;
-        }
+    .attendance-item .details {
+    flex: 1;
+    }
 
-        .attendance-item .percentage {
-            font-weight: bold;
-            color: #007bff;
-        }
+    .attendance-item .percentage {
+    font-weight: bold;
+    color: #007bff;
+    }
 
+    .emp__status{
+    font-size: 11px;
+    padding: 2px 5px;
+    }
     <style >
-    .search-container {
+        .search-container {
         position: relative;
         display: flex;
         align-items: center;
         width: 100%;
         max-width: 300px;
-    }
+        }
 
-    .search-box {
+        .search-box {
         width: 100%;
         padding: 10px 15px;
         padding-left: 40px; /* Space for the icon */
@@ -66,50 +71,81 @@
         border-radius: 10px;
         outline: none;
         transition: all 0.3s ease;
-    }
+        }
 
-    .search-box:focus {
+        .search-box:focus {
         border-color: #007bff;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-    }
+        }
 
-    .search-icon {
+        .search-icon {
         position: absolute;
         left: 12px;
         font-size: 18px;
         color: #888;
-    }
-</style>
-
-<div class="attendance-container">
-    <div class="attendance-header">
-        <div class="search-container">
-            <input id="search-box" class="search-box" type="text" placeholder="Search employees..." value="@ViewBag.Search" />
-        </div>        
-        <select id="filter-dropdown">
-            <option value="Present">Present</option>
-            <option value="Absent">Absent</option>
-        </select>
-    </div>
-
-    <ul class="attendance-list">
-        @foreach (var employee in Model)
-        {
-            <li class="attendance-item" data-id="@employee.Id">
-                <div class="details">
-                    <strong>@employee.FullName</strong> - @employee.Position
-                    <div>
-                        <span>Present: @employee.PresentDaysCount</span> |
-                        <span>Absent: @employee.AbscentDaysCount</span>
-                    </div>
-                </div>
-                <div class="percentage">
-                    @employee.AttendancePercentage.ToString("0.00")%
-                </div>
-            </li>
         }
+
+        .profile__pic--icon{
+        height: 40px;
+        width: 40px;
+        border-radius: 50px;
+        }
+    </style>
+
+    <div class="attendance-container">
+        <div class="attendance-header">
+            <div class="search-container">
+                <input id="search-box" class="search-box" type="text" placeholder="Search employees..." value="@ViewBag.Search" />
+            </div>        
+            <select id="filter-dropdown">
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+            </select>
+        </div>
+
+        <ul class="attendance-list">
+            @foreach (var employee in Model)
+            {
+                <li class="attendance-item" data-id="@employee.Id">
+                    <div class="details">
+                        <div>
+                            <img src="@(string.IsNullOrEmpty(employee.ProfilePicture) ? Url.Content("~/img/default-user.png") : employee.ProfilePicture)"
+                             alt="Profile Picture" class="profile__pic--icon" />
+                            @* <img class="profile__pic--icon" src="@Url.Content(employee.ProfilePicture)" alt="Employee Profile" /> *@
+                            <!-- Show the status only for present and set color according to status type -->
+                            <span class="emp__status @GetStatusClass(ViewBag.Filter, employee.Status) text-white rounded">@employee.Status</span>
+                        </div>
+
+                        <strong>@employee.FullName</strong> - @employee.Position
+                        <div>
+                            <span>Present: @employee.PresentDaysCount</span> |
+                            <span>Absent: @employee.AbscentDaysCount</span>
+                        </div>
+                    </div>
+                    <div class="percentage">
+                        @employee.AttendancePercentage.ToString("0.00")%
+                    </div>
+                </li>
+            }
     </ul>
 </div>
+<!-- BG setter function according to status -->
+    @functions {
+        private string GetStatusClass(string filter, EmployeeStatus status)
+        {
+            if (filter == "Absent")
+            {
+                return "d-none";
+            }
+            return status switch
+            {
+                EmployeeStatus.Active => "bg-success",     // Bootstrap green
+                EmployeeStatus.OnLeave => "bg-secondary",  // Bootstrap light gray
+                EmployeeStatus.Busy => "bg-primary",       // Bootstrap blue
+                _ => "bg-light text-dark"     // Default (light gray with dark text)
+            };
+        }
+}
 
 <script>
     $(function () {

@@ -46,10 +46,12 @@ namespace EMS.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "FullName");
 
                     b.Property<DateTime>("JoiningDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "JoiningDate");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -70,29 +72,38 @@ namespace EMS.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "PhoneNumber");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
                     b.Property<string>("Position")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "Position");
 
                     b.Property<int>("PresentDaysCount")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "PresentDaysCount");
+
+                    b.Property<string>("ProfilePicture")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Salary")
-                        .HasColumnType("float");
+                        .HasColumnType("float")
+                        .HasAnnotation("Relational:JsonPropertyName", "Salary");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "Status");
 
                     b.Property<TimeSpan>("TotalWorkingHours")
-                        .HasColumnType("time");
+                        .HasColumnType("time")
+                        .HasAnnotation("Relational:JsonPropertyName", "TotalWorkingHours");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -112,9 +123,60 @@ namespace EMS.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "Employee");
                 });
 
             modelBuilder.Entity("EMS.Domain.Models.LeaveRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "EmployeeId");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "EndDate");
+
+                    b.Property<int>("LeaveType")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "LeaveType");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "Reason");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "RejectionReason");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "RequestDate");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "StartDate");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "Status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("EMS.Domain.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,36 +184,23 @@ namespace EMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LeaveType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Reason")
+                    b.Property<string>("EmployeeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RejectionReason")
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("LeaveRequests");
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("EMS.Domain.Models.Role", b =>
@@ -188,21 +237,27 @@ namespace EMS.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ClockIn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ClockOut")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "EmployeeId");
+
+                    b.Property<DateTime>("Log")
+                        .HasColumnType("datetime2")
+                        .HasAnnotation("Relational:JsonPropertyName", "Log");
+
+                    b.Property<string>("LogType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "LogType");
 
                     b.Property<TimeSpan?>("WorkingHoursPerDay")
-                        .HasColumnType("time");
+                        .HasColumnType("time")
+                        .HasAnnotation("Relational:JsonPropertyName", "WorkingHoursPerDay");
 
                     b.HasKey("Id");
 

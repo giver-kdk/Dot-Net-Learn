@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EMS.Insfrastructure.Repositories
 {
-    internal class LeaveRequestRepository : ILeaveRequestRepository
+    public class LeaveRequestRepository : ILeaveRequestRepository
     {
         private readonly ApplicationDbContext _context;
 

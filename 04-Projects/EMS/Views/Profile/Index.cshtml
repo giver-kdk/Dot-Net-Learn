@@ -1,0 +1,113 @@
+﻿@model EMS.Domain.Models.Employee;
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid #f0f0f0;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .profile-actions {
+        margin-top: 2rem;
+        text-align: center;
+        color: white !important;
+		text-decoration: none !important;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            @* <img src="@(Model.ProfilePicture ?? "~/img/default-user.png")" alt="Profile Picture" class="avatar-image" /> *@
+            <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-user.png") : Model.ProfilePicture)"
+                 alt="Profile Picture" class="avatar-image" />
+
+            @* <img src="https://res.cloudinary.com/dbythhryh/image/upload/v1743077052/User3_do3kdb.png" alt="Profile Picture" class="avatar-image" /> *@
+        </div>
+        <h2>@Model.FullName</h2>
+        <p>@Model.Position</p>
+    </div>
+
+    <div class="profile-details">
+        <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">@Model.Email</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value">@(Model.PhoneNumber ?? "Not provided")</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Position:</span>
+            <span class="detail-value">@Model.Position</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">@Model.Status</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Joining Date:</span>
+            <span class="detail-value">@Model.JoiningDate.ToString("dd MMM yyyy")</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Present Days:</span>
+            <span class="detail-value">@Model.PresentDaysCount</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Total Working Hours:</span>
+            <span class="detail-value">@Model.TotalWorkingHours.ToString(@"hh\:mm")</span>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <form asp-action="EditView" method="get">
+            <button type="submit" class="btn btn-primary">Edit Profile</button>
+        </form>
+    </div>
+</div>

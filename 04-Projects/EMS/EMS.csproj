@@ -9,8 +9,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="EMS.Application\**" />
+    <Compile Remove="EMS.Domain\**" />
+    <Compile Remove="EMS.Insfrastructure\**" />
+    <Content Remove="EMS.Application\**" />
+    <Content Remove="EMS.Domain\**" />
+    <Content Remove="EMS.Insfrastructure\**" />
+    <EmbeddedResource Remove="EMS.Application\**" />
+    <EmbeddedResource Remove="EMS.Domain\**" />
+    <EmbeddedResource Remove="EMS.Insfrastructure\**" />
+    <None Remove="EMS.Application\**" />
+    <None Remove="EMS.Domain\**" />
+    <None Remove="EMS.Insfrastructure\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.5" />
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Hangfire" Version="1.8.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">

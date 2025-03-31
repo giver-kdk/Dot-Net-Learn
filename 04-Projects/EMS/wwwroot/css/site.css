@@ -30,3 +30,97 @@ body {
   text-align: start;
 }
 
+/* Notify.js Style */
+.notifyjs-bootstrap-base {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 4px;
+    font-family: sans-serif;
+}
+
+.notifyjs-bootstrap-success {
+    background-color: #dff0d8;
+    color: #3c763d;
+    border: 1px solid #d6e9c6;
+}
+
+.notifyjs-bootstrap-error {
+    background-color: #f2dede;
+    color: #a94442;
+    border: 1px solid #ebccd1;
+}
+
+/* Review Leave style */
+.leave__req--container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.leave__req--card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.leave__req--card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+    .leave__req--card-header .request-date {
+        font-size: 12px;
+        color: gray;
+    }
+
+    .leave__req--card-header .status {
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+.status-approved {
+    color: green;
+}
+
+.status-rejected {
+    color: red;
+}
+
+.status-pending {
+    color: blue;
+}
+
+.leave__req--card-body {
+    margin-top: 8px;
+}
+
+    .leave__req--card-body .reason {
+        margin-top: 8px;
+        cursor: pointer;
+        color: #007bff;
+    }
+
+        .leave__req--card-body .reason.collapsed {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+.leave__req--card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+    .leave__req--card-footer button {
+        margin-left: 8px;
+    }
+
+
+  

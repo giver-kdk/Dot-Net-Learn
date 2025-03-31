@@ -1,27 +1,280 @@
-﻿@{
+﻿@* @{ *@
+@*     ViewData["Title"] = "Home Page"; *@
+@* } *@
+
+@* <div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative;"> *@
+@*     <div id="btnIn" style="background-color: lightgreen; border: none; padding: 10px 20px; border-radius: 5px;"> *@
+@*     </div> *@
+
+@*     <div id="btnOut" style="background-color: lightcoral; border: none; padding: 10px 20px; border-radius: 5px;"> *@
+@*     </div> *@
+
+@*     <div id="btnSetStatus" style="background-color: lightblue; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);"> *@
+@*     </div> *@
+@* </div> *@
+
+@* <!-- Hours Worked Section --> *@
+@* <div style="text-align: center; margin-top: 20px;"> *@
+@*     <h3>Hours Worked: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3> *@
+@* </div> *@
+
+@* <!-- Office Infrastructure Illustration --> *@
+@* <img src="~/img/office-bg.jpg" *@
+@*      alt="Office Infrastructure Illustration" *@
+@*      style="width: 100%; height: auto;" /> *@
+
+@* <script> *@
+@*     const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee'; *@
+@*     var currentStatus = '@ViewData["CurrentStatus"]'; // Get the status from Razor *@
+
+@*     var dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" })); *@
+
+@*     // Initialize the DevExtreme dropdown *@
+@*     $("#btnSetStatus").dxSelectBox({ *@
+@*         items: dropdownOptions, *@
+@*         value: currentStatus, // Selected value from Database *@
+@*         onValueChanged: function (e) { *@
+@*             // Determine the controller based on the user's role *@
+@*             var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'"); *@
+
+@*             // Call the SetStatus action with the selected status *@
+@*             fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" }) *@
+@*                 .then(response => { *@
+@*                     if (response.ok) { *@
+@*                         alert("Status updated successfully!"); *@
+@*                     } else { *@
+@*                         alert("Failed to update status."); *@
+@*                     } *@
+@*                 }); *@
+@*         } *@
+@*     }); *@
+
+@*     // *************** TIME LOG Button Event Handlers *************** *@
+@*     $(function() { *@
+@*         $("#btnIn").dxButton({ *@
+@*             text: "In", *@
+@*             typeof: "default", *@
+@*             onClick: async function(e) { *@
+@*                 const response = await fetch(`/Employee/ClockIn`, { method: "GET" }); *@
+@*                 const message = await response.text(); *@
+
+@*                 alert(message);                 // Message as per Ok() or BadRequest() from Controller *@
+@*             } *@
+@*         }); *@
+
+@*         $("#btnOut").dxButton({ *@
+@*             text: "Out", *@
+@*             typeof: "default", *@
+@*             onClick: async function(e) { *@
+@*                 const response = await fetch(`/Employee/ClockOut`, { method: "GET" }); *@
+@*                 const message = await response.text(); *@
+
+@*                 alert(message); *@
+@*             } *@
+@*         }); *@
+@*     }); *@
+
+@*     // Function to update hours worked in real-time *@
+@*     // function updateHoursWorked() { *@
+@*     //     fetch('/Employee/GetHoursWorked') *@
+@*     //         .then(response => response.json()) *@
+@*     //         .then(data => { *@
+@*     //             document.getElementById('hoursWorked').innerText = data.hoursWorked; *@
+@*     //         }); *@
+@*     // } *@
+
+@*     // Update hours worked every minute *@
+@*     // setInterval(updateHoursWorked, 60000); *@
+
+@*     // Initial call to update hours worked *@
+@*     // updateHoursWorked(); *@
+@* </script> *@
+@using EMS.Domain.Enums
+@model List<EMS.Domain.Models.LeaveRequest>
+@{
     ViewData["Title"] = "Home Page";
 }
+@* Style: site.css -> Review Leave Style *@
 
-<div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative;">
-    <div id="btnIn" style="background-color: lightgreen; border: none; padding: 10px 20px; border-radius: 5px;">
+<div style="display: flex; flex-direction: row; gap: 20px; padding: 20px;">
+    <!-- First Container -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
+        <!-- First Sub-Container -->
+        <div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="font-weight: bold; font-size: 1.2em;">Log</div>
+
+            <div style="display: flex; flex-direction: row; gap: 10px;">
+                <div id="btnIn" style="flex: 1;"></div>
+                <div id="btnOut" style="flex: 1;"></div>
+            </div>
+
+            <div id="btnBreak" style="width: 100%;"></div>
+
+            <div style="font-weight: bold; font-size: 1.2em;">Status</div>
+
+            <div id="btnSetStatus" style="width: 100%;"></div>
+        </div>
+
+        @if (User.IsInRole("Manager"))
+        {
+            <!-- Second Sub-Container -->
+            <div style="
+                border-radius: 15px;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                height: 100%;
+                max-height: 50vh;
+                ">
+                <div style="display: flex; gap: 1rem;"> 
+                    <div style="font-weight: bold; font-size: 1.2em;">Review Leaves</div>
+                    <div class="leave__req--container">
+                        <select id="filter" class="form-control" style="width: 150px;">
+                            <option value="Pending">Pending</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="min-height: 100px; background-color: #f5f5f5; border-radius: 5px; overflow-y: auto;">
+
+                    @foreach (var leaveRequest in Model)
+                    {
+                        <div class="leave__req--card">
+                            <div class="leave__req--card-header">
+                                <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
+                                <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
+                            </div>
+                            <div class="leave__req--card-body">
+                                <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
+                                @* <p><strong>Position:</strong> @leaveRequest.Employee.Position</p> *@
+                                @* <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p> *@
+                                <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
+                                <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
+                                @* <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p> *@
+                                <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+                                @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+                                {
+                                    <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
+                                }
+                            </div>
+                            <div class="leave__req--card-footer">
+                                @if (ViewBag.Filter == "Pending")
+                                {
+                                    <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
+                                    <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
+                                }
+                            </div>
+
+                        </div>
+                    }
+
+                    <!-- DevExtreme Popup for Rejection Reason -->
+                    <div id="reject-popup"></div>
+
+                    <script>
+                        function toggleReason(element) {
+                            element.classList.toggle("collapsed");
+                        }
+
+                        document.getElementById("filter").addEventListener("change", function () {
+                            window.location.href = "@Url.Action("ReviewLeave")?filter=" + this.value;
+                        });
+
+                        document.getElementById("filter").value = "@ViewBag.Filter";
+
+                        function acceptLeaveRequest(leaveRequestId) {
+                            fetch(`/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`, { method: "POST" })
+                                .then(response => {
+                                    if (response.ok) {
+                                        alert("Leave request accepted successfully!");
+                                        window.location.reload();
+                                    } else {
+                                        alert("Failed to accept leave request.");
+                                    }
+                                });
+                        }
+
+                        function rejectLeaveRequest(leaveRequestId) {
+                            // Initialize DevExtreme Popup
+                            $("#reject-popup").dxPopup({
+                                title: "Enter Rejection Reason",
+                                visible: false,
+                                width: 400,
+                                height: 300,
+                                contentTemplate: function (contentElement) {
+                                    contentElement.append(`
+                                        <textarea id="rejection-reason" style="width: 100%; height: 150px;"></textarea>
+                                        <button id="submit-reject" class="btn btn-danger" style="margin-top: 16px;">Submit</button>
+                                    `);
+
+                                    $("#submit-reject").click(function () {
+                                        const rejectionReason = $("#rejection-reason").val();
+                                        if (!rejectionReason) {
+                                            alert("Please enter a rejection reason.");
+                                            return;
+                                        }
+
+                                        fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, { method: "POST" })
+                                            .then(response => {
+                                                if (response.ok) {
+                                                    alert("Leave request rejected successfully!");
+                                                    window.location.reload(); // Refresh the page
+                                                } else {
+                                                    alert("Failed to reject leave request.");
+                                                }
+                                            });
+
+                                        $("#reject-popup").dxPopup("hide");
+                                    });
+                                }
+                            });
+
+                            $("#reject-popup").dxPopup("show");
+                        }
+                    </script>
+
+                    @functions {
+                    public string GetStatusClass(LeaveStatus status)
+                    {
+                        return status switch
+                        {
+                            LeaveStatus.Approved => "status-approved",
+                            LeaveStatus.Rejected => "status-rejected",
+                            LeaveStatus.Pending => "status-pending",
+                            _ => ""
+                        };
+                    }
+                }
+                </div>
+            </div>
+        }
+       
     </div>
 
-    <div id="btnOut" style="background-color: lightcoral; border: none; padding: 10px 20px; border-radius: 5px;">
+    <!-- Second Container -->
+    <div style="flex: 1; border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h3>Working Hours: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3>
     </div>
 
-    <div id="btnSetStatus" style="background-color: lightblue; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
-    </div>
-</div>
 
-<!-- Hours Worked Section -->
-<div style="text-align: center; margin-top: 20px;">
-    <h3>Hours Worked: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3>
+    @if (User.IsInRole("Manager"))
+    {
+        <!-- Third Container -->
+        <div style="flex: 1; border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="font-weight: bold; font-size: 1.2em;">Leaves</div>
+            <div style="min-height: 100px; background-color: #f5f5f5; border-radius: 5px;">
+                <!-- Empty container for Leaves -->
+            </div>
+        </div>
+    }
+   
 </div>
 
 <!-- Office Infrastructure Illustration -->
 <img src="~/img/office-bg.jpg"
      alt="Office Infrastructure Illustration"
-     style="width: 100%; height: auto;" />
+     style="width: 100%; height: auto; margin-top: 20px;" />
 
 <script>
     const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee';
@@ -29,47 +282,51 @@
 
     var dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" }));
 
-    // Initialize the DevExtreme dropdown
-    $("#btnSetStatus").dxSelectBox({
-        items: dropdownOptions,
-        value: currentStatus, // Selected value from Database
-        onValueChanged: function (e) {
-            // Determine the controller based on the user's role
-            var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'");
-
-            // Call the SetStatus action with the selected status
-            fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Status updated successfully!");
-                    } else {
-                        alert("Failed to update status.");
-                    }
-                });
-        }
-    });
-
-    // *************** TIME LOG Button Event Handlers ***************
+    // Initialize the DevExtreme buttons and dropdown
     $(function() {
         $("#btnIn").dxButton({
             text: "In",
-            typeof: "default",
+            type: "default",
             onClick: async function(e) {
                 const response = await fetch(`/Employee/ClockIn`, { method: "GET" });
                 const message = await response.text();
-
-                alert(message);                 // Message as per Ok() or BadRequest() from Controller
+                alert(message);
             }
         });
 
         $("#btnOut").dxButton({
             text: "Out",
-            typeof: "default",
+            type: "default",
             onClick: async function(e) {
                 const response = await fetch(`/Employee/ClockOut`, { method: "GET" });
                 const message = await response.text();
-
                 alert(message);
+            }
+        });
+
+        $("#btnBreak").dxButton({
+            text: "Break",
+            type: "default",
+            onClick: async function(e) {
+                // Add break functionality here
+                $.notify("Break functionality to be implemented!", "error");
+
+            }
+        });
+
+        $("#btnSetStatus").dxSelectBox({
+            items: dropdownOptions,
+            value: currentStatus,
+            onValueChanged: function (e) {
+                var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'");
+                fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("Status updated successfully!");
+                        } else {
+                            alert("Failed to update status.");
+                        }
+                    });
             }
         });
     });

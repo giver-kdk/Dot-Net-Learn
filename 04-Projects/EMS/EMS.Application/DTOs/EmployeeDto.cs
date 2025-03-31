@@ -18,6 +18,7 @@ namespace EMS.Application.DTOs
         public double AttendancePercentage { get; set; }
         public TimeSpan TotalWorkingHours { get; set; } = TimeSpan.Zero;
         public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
+        public string? ProfilePicture { get; set; } = null;
 
     }
 }

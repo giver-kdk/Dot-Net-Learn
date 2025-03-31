@@ -1,0 +1,47 @@
+﻿@using EMS.Domain.Enums
+@model List<EMS.Domain.Models.LeaveRequest>
+
+
+<!-- Dynamically changing leave request changing part of the main view -->
+@foreach (var leaveRequest in Model)
+{
+    <div class="leave__req--card">
+        <div class="leave__req--card-header">
+            <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
+            <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
+        </div>
+        <div class="leave__req--card-body">
+            <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
+            <p><strong>Position:</strong> @leaveRequest.Employee.Position</p>
+            <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
+            <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
+            <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+            {
+                <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
+            }
+        </div>
+        <div class="leave__req--card-footer">
+            @if (ViewBag.Filter == "Pending")
+            {
+                <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
+                <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
+            }
+        </div>
+    </div>
+}
+
+@functions {
+    public string GetStatusClass(LeaveStatus status)
+    {
+        return status switch
+        {
+            LeaveStatus.Approved => "status-approved",
+            LeaveStatus.Rejected => "status-rejected",
+            LeaveStatus.Pending => "status-pending",
+            _ => ""
+        };
+    }
+}

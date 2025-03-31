@@ -7,13 +7,16 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/EMS.styles.css" asp-append-version="true" />
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <!-- DevExtreme theme -->
     <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/24.2.3/css/dx.light.css">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <!-- DevExtreme libraries -->
     <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script>
 
+    <!-- SignalR Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -59,6 +62,12 @@
                                 <a class="nav-link" asp-controller="Employee" asp-action="MyAttendance">My Attendance</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" asp-controller="Notification" asp-action="Index">Notification</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Profile" asp-action="Index">Profile</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" asp-controller="Logout" asp-action="Index">Logout</a>
                             </li>
                         }
@@ -89,7 +98,10 @@
     </footer>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Notify.js Scripts -->
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/notify.js/2.0.0/notify.min.js"></script> *@
 
+    <script src="~/js/notify.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <!-- Auto browser refresh on hot reload -->

@@ -21,8 +21,9 @@ namespace EMS.Insfrastructure.Data
     public DbSet<Employee> Employees { get; set; }
     public DbSet<TimeLog> TimeLogs { get; set; }
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         

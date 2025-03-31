@@ -32,6 +32,8 @@ namespace EMS.Domain.Models
         [JsonPropertyName("TotalWorkingHours")]
         public TimeSpan TotalWorkingHours { get; set; } = TimeSpan.Zero;
 
+        public string? ProfilePicture { get; set; } = null;
+
     }
 
 }

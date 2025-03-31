@@ -11,6 +11,10 @@ using System.Net.Mail;
 using EMS.Application.UseCases;
 using DotNetEnv;
 using Hangfire;
+using EMS.Insfrastructure.Hubs;
+using CloudinaryDotNet;
+
+
 
 
 
@@ -52,6 +56,14 @@ builder.Services.AddHangfireServer();
 // ************** Add Recurrign Job Task Service **************
 builder.Services.AddScoped<IRecurringJobService, RecurringJobService>();
 
+// ************** Add SignalR and Notification Service **************
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// ************ Cloudinary Configuration ************
+builder.Services.AddScoped<IImageService, CloudinaryService>();
+
+
 
 var app = builder.Build();
 
@@ -68,8 +80,7 @@ app.UseRouting();
 // ******** Enable authentication + authorization and also enables 'Identity Area' ********
 app.UseAuthentication();                
 app.UseAuthorization(); 
-
-app.MapStaticAssets();
+app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
@@ -92,8 +103,12 @@ using (var scope = app.Services.CreateScope())
     recurringJobManager.AddOrUpdate<IRecurringJobService>(
         "AutoClockOut",
         service => service.AutoClockOut(),
-        "30 19 * * *",             // Cron expressionf for 7:30PM
+        "30 19 * * *",             // Cron expression for 7:30PM
         TimeZoneInfo.Local          // Set Local Time Zone
     );
 }
+
+// ************ Configure the Hub for LeaveNotification ************
+app.MapHub<LeaveNotificationHub>("/leaveNotificationHub");
+
 app.Run();

@@ -5,78 +5,7 @@
     ViewData["Title"] = "Review Leave";
 }
 
-<style>
-    .leave__req--container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .leave__req--card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        position: relative;
-    }
-
-    .leave__req--card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-        .leave__req--card-header .request-date {
-            font-size: 12px;
-            color: gray;
-        }
-
-        .leave__req--card-header .status {
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-    .status-approved {
-        color: green;
-    }
-
-    .status-rejected {
-        color: red;
-    }
-
-    .status-pending {
-        color: blue;
-    }
-
-    .leave__req--card-body {
-        margin-top: 8px;
-    }
-
-        .leave__req--card-body .reason {
-            margin-top: 8px;
-            cursor: pointer;
-            color: #007bff;
-        }
-
-            .leave__req--card-body .reason.collapsed {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-    .leave__req--card-footer {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 16px;
-    }
-
-        .leave__req--card-footer button {
-            margin-left: 8px;
-        }
-</style>
+@* Style: site.css -> Review Leave Style *@
 
 <div class="leave__req--container">
     <select id="filter" class="form-control" style="width: 150px;">
@@ -85,36 +14,38 @@
     </select>
 </div>
 
-@foreach (var leaveRequest in Model)
-{
-    <div class="leave__req--card">
-        <div class="leave__req--card-header">
-            <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
-            <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
-        </div>
-        <div class="leave__req--card-body">
-            <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
-            <p><strong>Position:</strong> @leaveRequest.Employee.Position</p>
-            <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
-            <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
-            <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
-            <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
-            <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
-            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
-            {
-                <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
-            }
-        </div>
-        <div class="leave__req--card-footer">
-            @if (ViewBag.Filter == "Pending")
-            {
-                <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
-                <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
-            }
-        </div>
+<div class="leave__req--cards">
+    @foreach (var leaveRequest in Model)
+    {
+        <div class="leave__req--card">
+            <div class="leave__req--card-header">
+                <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
+                <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
+            </div>
+            <div class="leave__req--card-body">
+                <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
+                <p><strong>Position:</strong> @leaveRequest.Employee.Position</p>
+                <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
+                <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
+                <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
+                <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
+                <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
+                @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+                {
+                    <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
+                }
+            </div>
+            <div class="leave__req--card-footer">
+                @if (ViewBag.Filter == "Pending")
+                {
+                    <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
+                    <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
+                }
+            </div>
 
-    </div>
-}
+        </div>
+    }
+</div>
 
 <!-- DevExtreme Popup for Rejection Reason -->
 <div id="reject-popup"></div>
@@ -130,17 +61,21 @@
 
     document.getElementById("filter").value = "@ViewBag.Filter";
 
-    function acceptLeaveRequest(leaveRequestId) {
-        fetch(`/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`, { method: "POST" })
-            .then(response => {
-                if (response.ok) {
-                    alert("Leave request accepted successfully!");
-                    window.location.reload(); 
-                } else {
-                    alert("Failed to accept leave request.");
-                }
-            });
-    }
+function acceptLeaveRequest(leaveRequestId) {
+    $.ajax({
+        url: `/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`,
+        type: 'POST',
+        success: function() {
+                $.notify("Leave request accepted successfully!", "success");
+                
+                refreshLeaveRequests();
+                // window.location.reload();
+        },
+        error: function() {
+            $.notify("Failed to accept leave request.", "error");
+        }
+    });
+}
 
     function rejectLeaveRequest(leaveRequestId) {
         // Initialize DevExtreme Popup
@@ -158,17 +93,20 @@
                 $("#submit-reject").click(function () {
                     const rejectionReason = $("#rejection-reason").val();
                     if (!rejectionReason) {
-                        alert("Please enter a rejection reason.");
+
+                        $.notify("Please enter a rejection reason.", "info");
                         return;
                     }
 
                     fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, { method: "POST" })
                         .then(response => {
                             if (response.ok) {
-                                alert("Leave request rejected successfully!");
-                                window.location.reload(); // Refresh the page
+                                $.notify("Leave requets rejected successfully", "success");
+
+                                refreshLeaveRequests();
+                                    // window.location.reload();        // Refresh the page
                             } else {
-                                alert("Failed to reject leave request.");
+                                $.notify("Failed to reject leave request.", "error");
                             }
                         });
 
@@ -178,6 +116,23 @@
         });
 
         $("#reject-popup").dxPopup("show");
+    }
+
+    function refreshLeaveRequests() {
+        const filter = document.getElementById("filter").value;
+
+        $.ajax({
+            url: '@Url.Action("ReviewLeavePartial", "Manager")',        
+            type: 'GET',
+            data: { filter: filter },
+            success: function(data) {
+				$('.leave__req--cards').empty();            // Remove all childs of the container
+                $('.leave__req--cards').append(data);       // Add updated partial view childrens on the container
+            },
+            error: function() {
+                $.notify("Failed to refresh leave requests.", "error");
+            }
+        });
     }
 </script>
 

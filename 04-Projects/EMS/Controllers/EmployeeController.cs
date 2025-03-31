@@ -1,4 +1,5 @@
 ﻿using EMS.Application.DTOs;
+using EMS.Application.Interfaces;
 using EMS.Domain.Enums;
 using EMS.Domain.Models;
 using EMS.Insfrastructure.Data;
@@ -13,11 +14,13 @@ namespace EMS.Controllers
     {
         private readonly ApplicationDbContext _context; 
         private readonly UserManager<Employee> _userManager; // UserManager for Identity
+        private readonly IImageService _imageService;
 
-        public EmployeeController(ApplicationDbContext context, UserManager<Employee> userManager)
+        public EmployeeController(ApplicationDbContext context, UserManager<Employee> userManager, IImageService imageService)
         {
             _context = context;
             _userManager = userManager;
+            _imageService = imageService;
         }
         public IActionResult Index()
         {
@@ -145,7 +148,7 @@ namespace EMS.Controllers
             // Fetch employee's attendance timelog
             var timeLogs = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId)
-                .OrderByDescending(t => t.ClockIn)
+                .OrderByDescending(t => t.LogType == "ClockIn")
                 .ToListAsync();
 
             // Create the combined ViewModel
@@ -195,7 +198,7 @@ namespace EMS.Controllers
 
             // Check if the employee has already clocked in today
             var hasClockedInToday = await _context.TimeLogs
-                .AnyAsync(t => t.EmployeeId == employeeId && t.ClockIn.Date == today);
+                .AnyAsync(t => t.EmployeeId == employeeId && t.LogType == "ClockIn" && t.Log.Date == today);
 
             if (hasClockedInToday)
             {
@@ -213,9 +216,8 @@ namespace EMS.Controllers
             var timeLog = new TimeLog
             {
                 EmployeeId = employeeId,
-                ClockIn = DateTime.Now,
-                ClockOut = null,
-                WorkingHoursPerDay = null
+                Log = DateTime.Now,
+                LogType="ClockIn",
             };
 
             _context.TimeLogs.Add(timeLog);
@@ -245,8 +247,8 @@ namespace EMS.Controllers
             // Find the most recent TimeLog entry for the current employee and today's date
             var timeLog = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId &&
-                             t.ClockIn.Date == today)
-                .OrderByDescending(t => t.ClockIn)
+                             t.Log.Date == today)
+                .OrderByDescending(t => t.Log)
                 .FirstOrDefaultAsync();
 
             if (timeLog == null)
@@ -254,14 +256,22 @@ namespace EMS.Controllers
                 return BadRequest("You have to clock in before clocking out!");
             }
             // Here, 'ClockOut' is a nullable value. So, we need to check if it has a value or not as well
-            else if(timeLog.ClockOut.HasValue && timeLog.ClockOut.Value.Date == today)
+            else if (timeLog.LogType == "ClockOut" && timeLog.Log.Date == today)
             {
                 return BadRequest("You have already clocked out today.");
             }
 
-            timeLog.ClockOut = DateTime.Now;
+            var clockOutLog = new TimeLog
+            {
+                EmployeeId = timeLog.EmployeeId,
+                Log = DateTime.Now,
+                LogType = "ClockOut"
+            };
+            await _context.TimeLogs.AddAsync(clockOutLog);
 
-            timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
+            // *************** Calculate Hours Worked ***************
+            //timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
+            timeLog.WorkingHoursPerDay = null;
 
             await _context.SaveChangesAsync();
 
@@ -306,5 +316,6 @@ namespace EMS.Controllers
 
             return Ok();
         }
+
     }
 }
