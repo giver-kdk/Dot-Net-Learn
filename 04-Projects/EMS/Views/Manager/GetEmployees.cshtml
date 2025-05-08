@@ -1,25 +1,35 @@
-﻿@{
-}
-@model IEnumerable<EMS.Domain.Models.Employee>
+﻿@model IEnumerable<EMS.Domain.Models.Employee>
 
 @{
     ViewData["Title"] = "Employees";
 }
 
-<h1>Employees</h1>
+<div class="max-w-6xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Employee Management
+            </h1>
+            <p class="text-sm text-gray-500 mt-2">View and manage all employees</p>
+        </div>
+    </div>
 
-<div id="dataGrid"></div>               
+    <!-- Data Grid Container -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div id="dataGrid" class="w-full"></div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-            // Store the Model data into JS variable by converting it into JSON format
-            var employeeData = @Html.Raw(Json.Serialize(Model));
+        // Store the Model data into JS variable by converting it into JSON format
+        var employeeData = @Html.Raw(Json.Serialize(Model));
 
-
-        // Data Grid Script
         $(function () {
-            // 'employeeData' JS variable is already created in Employee/Index.cshtml file
-            console.log(employeeData);
-
             $("#dataGrid").dxDataGrid({
                 dataSource: new DevExpress.data.CustomStore({
                     key: "id",
@@ -48,29 +58,112 @@
                     }
                 }),
                 editing: {
-                    // *** Refreshes the grid (+ re-applies sorting, filtering, etc.) after Manipulation ***
                     refreshMode: 'reshape',
                     allowAdding: true,
                     allowUpdating: true,
                     allowDeleting: true,
-                    mode: "popup"                   // Opens an edit form in a popup window
+                    mode: "popup",
+                    form: {
+                        items: [
+                            { dataField: "FullName", label: { text: "Full Name" } },
+                            { dataField: "email", label: { text: "Email" } },
+                            { dataField: "PhoneNumber", label: { text: "Phone Number" } },
+                            { dataField: "Position", label: { text: "Position" } },
+                            { dataField: "Salary", label: { text: "Salary" } }
+                        ]
+                    }
                 },
-                // Fields to be displayed in the grid
                 columns: [
-                    { dataField: "id", allowEditing: false },           // Given default by Identity and JSON Property Name is lowercased
-                    { dataField: "FullName", caption: "Name" },
-                    { dataField: "email", caption: "Email" },           // Given default by Identity and JSON Property Name is lowercased
-                    { dataField: "PhoneNumber", caption: "Phone Number" },
-                    { dataField: "Position", caption: "Position" },
-                    { dataField: "Salary", caption: "Salary", dataType: "number" }
+                    {
+                        dataField: "id",
+                        caption: "ID",
+                        allowEditing: false,
+                        width: 80
+                    },
+                    {
+                        dataField: "FullName",
+                        caption: "Name",
+                        cellTemplate: function(container, options) {
+                            $("<div>")
+                                .addClass("flex items-center")
+                                .append(
+                                    $("<div>")
+                                        .addClass("flex-shrink-0 h-10 w-10")
+                                        .append(
+                                            $("<img>")
+                                                .addClass("h-10 w-10 rounded-full")
+                                                .attr("src", options.data.ProfilePicture || "@Url.Content("~/img/default-user.png")")
+                                        ),
+                                    $("<div>")
+                                        .addClass("ml-4")
+                                        .append(
+                                            $("<div>")
+                                                .addClass("text-sm font-medium text-gray-900")
+                                                .text(options.value),
+                                            $("<div>")
+                                                .addClass("text-sm text-gray-500")
+                                                .text(options.data.Position)
+                                        )
+                                )
+                                .appendTo(container);
+                        }
+                    },
+                    {
+                        dataField: "email",
+                        caption: "Email",
+                        cellTemplate: function(container, options) {
+                            $("<a>")
+                                .addClass("text-blue-600 hover:text-blue-800")
+                                .attr("href", "mailto:" + options.value)
+                                .text(options.value)
+                                .appendTo(container);
+                        }
+                    },
+                    {
+                        dataField: "PhoneNumber",
+                        caption: "Phone",
+                        cellTemplate: function(container, options) {
+                            if (options.value) {
+                                $("<a>")
+                                    .addClass("text-gray-600 hover:text-gray-800")
+                                    .attr("href", "tel:" + options.value)
+                                    .text(options.value)
+                                    .appendTo(container);
+                            } else {
+                                $("<span>")
+                                    .addClass("text-gray-400")
+                                    .text("Not provided")
+                                    .appendTo(container);
+                            }
+                        }
+                    },
+                    {
+                        dataField: "Position",
+                        caption: "Position",
+                        cellTemplate: function(container, options) {
+                            $("<span>")
+                                .addClass("px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800")
+                                .text(options.value)
+                                .appendTo(container);
+                        }
+                    },
+                    {
+                        dataField: "Salary",
+                        caption: "Salary",
+                        dataType: "number",
+                        format: { type: "currency", precision: 2 },
+                        alignment: "right"
+                    }
                 ],
-                showBorders: true,                  // Adds borders in the grid
+                showBorders: false,
                 paging: {
-                    pageSize: 5                     // Number of rows per page
+                    pageSize: 10
                 },
                 pager: {
-                    showPageSizeSelector: true,     // Allows user to control number of rows per page
-                    allowedPageSizes: [5, 10, 20]   // Gives options of 5, 10 or 20 rows per page
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [5, 10, 20],
+                    showInfo: true,
+                    infoText: "Page {0} of {1} ({2} items)"
                 },
                 filterRow: {
                     visible: true
@@ -82,7 +175,14 @@
                     visible: true
                 },
                 searchPanel: {
-                    visible: true
+                    visible: true,
+                    placeholder: "Search employees..."
+                },
+                rowAlternationEnabled: true,
+                onRowPrepared: function(e) {
+                    if(e.rowType === "data") {
+                        e.rowElement.addClass("hover:bg-gray-50 cursor-pointer");
+                    }
                 }
             });
         });

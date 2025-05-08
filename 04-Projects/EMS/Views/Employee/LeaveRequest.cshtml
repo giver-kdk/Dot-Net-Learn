@@ -5,100 +5,117 @@
     ViewData["Title"] = "Leave Requests";
 }
 
-<style>
-    .leave__req--container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .leave__req--card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .leave__req--card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .leave__req--card-header .request-date {
-        font-size: 12px;
-        color: gray;
-    }
-
-    .leave__req--card-header .status {
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .status-approved {
-        color: green;
-    }
-
-    .status-rejected {
-        color: red;
-    }
-
-    .status-pending {
-        color: blue;
-    }
-
-    .leave__req--card-body {
-        margin-top: 8px;
-    }
-
-    .leave__req--card-body .reason {
-        margin-top: 8px;
-        cursor: pointer;
-        color: #007bff;
-    }
-
-    .leave__req--card-body .reason.collapsed {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-</style>
-
-<div class="leave__req--container">
-    <a href="@Url.Action("AskLeave", "Employee")" class="btn btn-primary text-white">Ask Leave</a>
-    <select id="filter" class="form-control" style="width: 150px;">
-        <option value="Pending">Pending</option>
-        <option value="Closed">Closed</option>
-    </select>
-</div>
-
-@foreach (var leaveRequest in Model)
-{
-    <div class="leave__req--card">
-        <div class="leave__req--card-header">
-            <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
-            <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header and Filter Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                My Leave Requests
+            </h1>
+            <p class="text-sm text-gray-500 mt-1 ml-1">View and manage your leave applications</p>
         </div>
-        <div class="leave__req--card-body">
-            <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
-            <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
-            <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
-            <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
-            <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
-            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
-            {
-                <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
-            }
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <a href="@Url.Action("AskLeave", "Employee")" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                New Request
+            </a>
+
+            <select id="filter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="Pending">Pending Requests</option>
+                <option value="Closed">Closed Requests</option>
+            </select>
         </div>
     </div>
-}
+
+    <!-- Leave Requests List -->
+    <div class="space-y-4">
+        @foreach (var leaveRequest in Model)
+        {
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="p-5">
+                    <!-- Request Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500">
+                                Submitted: @leaveRequest.RequestDate.ToString("yyyy-MM-dd")
+                            </span>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium
+                              @(leaveRequest.Status == LeaveStatus.Approved ? "bg-green-100 text-green-800" :
+                                leaveRequest.Status == LeaveStatus.Rejected ? "bg-red-100 text-red-800" :
+                                "bg-blue-100 text-blue-800")">
+                            @leaveRequest.Status.ToString()
+                        </span>
+                    </div>
+
+                    <!-- Request Details -->
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Leave Type</p>
+                            <p class="font-medium">@leaveRequest.LeaveType</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Duration</p>
+                            <p class="font-medium">
+                                @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1) days
+                                (@leaveRequest.StartDate.ToString("MMM d") - @leaveRequest.EndDate.ToString("MMM d"))
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Reason (collapsible) -->
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-500">Reason</p>
+                        <p class="mt-1 text-gray-700 cursor-pointer hover:text-blue-600 transition-colors line-clamp-3"
+                           onclick="toggleReason(this)">
+                            @leaveRequest.Reason
+                        </p>
+                    </div>
+
+                    <!-- Rejection Reason (if applicable) -->
+                    @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+                    {
+                        <div class="mt-4 p-3 bg-red-50 rounded-md">
+                            <p class="text-sm font-medium text-red-800">Rejection Reason</p>
+                            <p class="mt-1 text-red-700">@leaveRequest.RejectionReason</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No leave requests found</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    @(ViewBag.Filter == "Pending" ? "You don't have any pending leave requests." : "You don't have any closed leave requests.")
+                </p>
+                <div class="mt-6">
+                    <a href="@Url.Action("AskLeave", "Employee")" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Create New Request
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
 <script>
     function toggleReason(element) {
-        element.classList.toggle("collapsed");
+        element.classList.toggle("line-clamp-3");
     }
 
     document.getElementById("filter").addEventListener("change", function () {
@@ -108,16 +125,3 @@
     // Set the selected filter option
     document.getElementById("filter").value = "@ViewBag.Filter";
 </script>
-
-@functions {
-    public string GetStatusClass(LeaveStatus status)
-    {
-        return status switch
-        {
-            LeaveStatus.Approved => "status-approved",
-            LeaveStatus.Rejected => "status-rejected",
-            LeaveStatus.Pending => "status-pending",
-            _ => ""
-        };
-    }
-}

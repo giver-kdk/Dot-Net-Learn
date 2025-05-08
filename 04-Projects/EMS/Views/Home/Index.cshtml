@@ -1,319 +1,187 @@
-﻿@* @{ *@
-@*     ViewData["Title"] = "Home Page"; *@
-@* } *@
-
-@* <div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative;"> *@
-@*     <div id="btnIn" style="background-color: lightgreen; border: none; padding: 10px 20px; border-radius: 5px;"> *@
-@*     </div> *@
-
-@*     <div id="btnOut" style="background-color: lightcoral; border: none; padding: 10px 20px; border-radius: 5px;"> *@
-@*     </div> *@
-
-@*     <div id="btnSetStatus" style="background-color: lightblue; border: none; padding: 10px 20px; border-radius: 5px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);"> *@
-@*     </div> *@
-@* </div> *@
-
-@* <!-- Hours Worked Section --> *@
-@* <div style="text-align: center; margin-top: 20px;"> *@
-@*     <h3>Hours Worked: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3> *@
-@* </div> *@
-
-@* <!-- Office Infrastructure Illustration --> *@
-@* <img src="~/img/office-bg.jpg" *@
-@*      alt="Office Infrastructure Illustration" *@
-@*      style="width: 100%; height: auto;" /> *@
-
-@* <script> *@
-@*     const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee'; *@
-@*     var currentStatus = '@ViewData["CurrentStatus"]'; // Get the status from Razor *@
-
-@*     var dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" })); *@
-
-@*     // Initialize the DevExtreme dropdown *@
-@*     $("#btnSetStatus").dxSelectBox({ *@
-@*         items: dropdownOptions, *@
-@*         value: currentStatus, // Selected value from Database *@
-@*         onValueChanged: function (e) { *@
-@*             // Determine the controller based on the user's role *@
-@*             var controller = @Html.Raw(@User.IsInRole("Manager") ? "'Manager'" : "'Employee'"); *@
-
-@*             // Call the SetStatus action with the selected status *@
-@*             fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" }) *@
-@*                 .then(response => { *@
-@*                     if (response.ok) { *@
-@*                         alert("Status updated successfully!"); *@
-@*                     } else { *@
-@*                         alert("Failed to update status."); *@
-@*                     } *@
-@*                 }); *@
-@*         } *@
-@*     }); *@
-
-@*     // *************** TIME LOG Button Event Handlers *************** *@
-@*     $(function() { *@
-@*         $("#btnIn").dxButton({ *@
-@*             text: "In", *@
-@*             typeof: "default", *@
-@*             onClick: async function(e) { *@
-@*                 const response = await fetch(`/Employee/ClockIn`, { method: "GET" }); *@
-@*                 const message = await response.text(); *@
-
-@*                 alert(message);                 // Message as per Ok() or BadRequest() from Controller *@
-@*             } *@
-@*         }); *@
-
-@*         $("#btnOut").dxButton({ *@
-@*             text: "Out", *@
-@*             typeof: "default", *@
-@*             onClick: async function(e) { *@
-@*                 const response = await fetch(`/Employee/ClockOut`, { method: "GET" }); *@
-@*                 const message = await response.text(); *@
-
-@*                 alert(message); *@
-@*             } *@
-@*         }); *@
-@*     }); *@
-
-@*     // Function to update hours worked in real-time *@
-@*     // function updateHoursWorked() { *@
-@*     //     fetch('/Employee/GetHoursWorked') *@
-@*     //         .then(response => response.json()) *@
-@*     //         .then(data => { *@
-@*     //             document.getElementById('hoursWorked').innerText = data.hoursWorked; *@
-@*     //         }); *@
-@*     // } *@
-
-@*     // Update hours worked every minute *@
-@*     // setInterval(updateHoursWorked, 60000); *@
-
-@*     // Initial call to update hours worked *@
-@*     // updateHoursWorked(); *@
-@* </script> *@
-@using EMS.Domain.Enums
+﻿@using EMS.Domain.Enums
 @model List<EMS.Domain.Models.LeaveRequest>
+
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Leave Management";
 }
-@* Style: site.css -> Review Leave Style *@
 
-<div style="display: flex; flex-direction: row; gap: 20px; padding: 20px;">
-    <!-- First Container -->
-    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
-        <!-- First Sub-Container -->
-        <div style="border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-            <div style="font-weight: bold; font-size: 1.2em;">Log</div>
-
-            <div style="display: flex; flex-direction: row; gap: 10px;">
-                <div id="btnIn" style="flex: 1;"></div>
-                <div id="btnOut" style="flex: 1;"></div>
-            </div>
-
-            <div id="btnBreak" style="width: 100%;"></div>
-
-            <div style="font-weight: bold; font-size: 1.2em;">Status</div>
-
-            <div id="btnSetStatus" style="width: 100%;"></div>
+<div class="max-w-7xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+				Greetings, @User.Identity.Name!
+            </h1>
         </div>
 
-        @if (User.IsInRole("Manager"))
-        {
-            <!-- Second Sub-Container -->
-            <div style="
-                border-radius: 15px;
-                padding: 1rem;
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-                height: 100%;
-                max-height: 50vh;
-                ">
-                <div style="display: flex; gap: 1rem;"> 
-                    <div style="font-weight: bold; font-size: 1.2em;">Review Leaves</div>
-                    <div class="leave__req--container">
-                        <select id="filter" class="form-control" style="width: 150px;">
-                            <option value="Pending">Pending</option>
-                            <option value="Closed">Closed</option>
-                        </select>
-                    </div>
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <!-- Time Tracking Card -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex-1">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div id="btnIn" class="flex-1"></div>
+                    <div id="btnOut" class="flex-1"></div>
                 </div>
-                <div style="min-height: 100px; background-color: #f5f5f5; border-radius: 5px; overflow-y: auto;">
+                <div class="mt-4">
+                    <div id="btnSetStatus" class="w-full"></div>
+                </div>
+            </div>
 
+            <!-- Hours Worked Card -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center">
+                <div class="text-center">
+                    <h3 class="text-lg font-medium text-gray-800">Hours Worked</h3>
+                    <p class="text-3xl font-bold text-blue-600">
+                        <span id="hoursWorked">@ViewData["HoursWorked"]</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+     @if (User.IsInRole("Manager"))
+        {
+    <!-- Main Content Area -->
+    <div class="w-full gap-6">
+        <!-- Leave Review Section -->
+        <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 w-full">
+                <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Review Leave Requests
+                    </h2>
+                    <select id="filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="Pending">Pending Requests</option>
+                        <option value="Closed">Closed Requests</option>
+                    </select>
+                </div>
+
+                <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
                     @foreach (var leaveRequest in Model)
                     {
-                        <div class="leave__req--card">
-                            <div class="leave__req--card-header">
-                                <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
-                                <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
-                            </div>
-                            <div class="leave__req--card-body">
-                                <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
-                                @* <p><strong>Position:</strong> @leaveRequest.Employee.Position</p> *@
-                                @* <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p> *@
-                                <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
-                                <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
-                                @* <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p> *@
-                                <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
-                                @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
-                                {
-                                    <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
-                                }
-                            </div>
-                            <div class="leave__req--card-footer">
-                                @if (ViewBag.Filter == "Pending")
-                                {
-                                    <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
-                                    <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
-                                }
+                        <div class="border border-gray-200 rounded-lg hover:shadow-md transition-shadow p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-500">@leaveRequest.RequestDate.ToString("MMMM d, yyyy")</span>
+                                <span class="px-2 py-1 text-xs rounded-full font-medium @(leaveRequest.Status == LeaveStatus.Approved ? "bg-green-100 text-green-800" : leaveRequest.Status == LeaveStatus.Rejected ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800")">
+                                    @leaveRequest.Status
+                                </span>
                             </div>
 
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Employee</p>
+                                    <p class="font-medium">@leaveRequest.Employee.FullName</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Dates</p>
+                                    <p class="font-medium">
+                                        @leaveRequest.StartDate.ToString("MMM d") - @leaveRequest.EndDate.ToString("MMM d")
+                                        (@((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1) days)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-500">Reason</p>
+                                <p class="text-gray-700 line-clamp-3 cursor-pointer hover:text-blue-600" onclick="toggleReason(this)">
+                                    @leaveRequest.Reason
+                                </p>
+                            </div>
+
+                            @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+                            {
+                                <div class="mt-3 p-2 bg-red-50 rounded">
+                                    <p class="text-sm font-medium text-red-800">Rejection Reason</p>
+                                    <p class="text-red-700">@leaveRequest.RejectionReason</p>
+                                </div>
+                            }
+
+                            @if (ViewBag.Filter == "Pending")
+                            {
+                                <div class="flex justify-end gap-2 mt-4">
+                                    <button onclick="acceptLeaveRequest(@leaveRequest.Id)"
+                                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Approve
+                                    </button>
+                                    <button onclick="rejectLeaveRequest(@leaveRequest.Id)"
+                                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Reject
+                                    </button>
+                                </div>
+                            }
                         </div>
                     }
 
-                    <!-- DevExtreme Popup for Rejection Reason -->
-                    <div id="reject-popup"></div>
-
-                    <script>
-                        function toggleReason(element) {
-                            element.classList.toggle("collapsed");
-                        }
-
-                        document.getElementById("filter").addEventListener("change", function () {
-                            window.location.href = "@Url.Action("ReviewLeave")?filter=" + this.value;
-                        });
-
-                        document.getElementById("filter").value = "@ViewBag.Filter";
-
-                        function acceptLeaveRequest(leaveRequestId) {
-                            fetch(`/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`, { method: "POST" })
-                                .then(response => {
-                                    if (response.ok) {
-                                        alert("Leave request accepted successfully!");
-                                        window.location.reload();
-                                    } else {
-                                        alert("Failed to accept leave request.");
-                                    }
-                                });
-                        }
-
-                        function rejectLeaveRequest(leaveRequestId) {
-                            // Initialize DevExtreme Popup
-                            $("#reject-popup").dxPopup({
-                                title: "Enter Rejection Reason",
-                                visible: false,
-                                width: 400,
-                                height: 300,
-                                contentTemplate: function (contentElement) {
-                                    contentElement.append(`
-                                        <textarea id="rejection-reason" style="width: 100%; height: 150px;"></textarea>
-                                        <button id="submit-reject" class="btn btn-danger" style="margin-top: 16px;">Submit</button>
-                                    `);
-
-                                    $("#submit-reject").click(function () {
-                                        const rejectionReason = $("#rejection-reason").val();
-                                        if (!rejectionReason) {
-                                            alert("Please enter a rejection reason.");
-                                            return;
-                                        }
-
-                                        fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, { method: "POST" })
-                                            .then(response => {
-                                                if (response.ok) {
-                                                    alert("Leave request rejected successfully!");
-                                                    window.location.reload(); // Refresh the page
-                                                } else {
-                                                    alert("Failed to reject leave request.");
-                                                }
-                                            });
-
-                                        $("#reject-popup").dxPopup("hide");
-                                    });
-                                }
-                            });
-
-                            $("#reject-popup").dxPopup("show");
-                        }
-                    </script>
-
-                    @functions {
-                    public string GetStatusClass(LeaveStatus status)
+                    @if (!Model.Any())
                     {
-                        return status switch
-                        {
-                            LeaveStatus.Approved => "status-approved",
-                            LeaveStatus.Rejected => "status-rejected",
-                            LeaveStatus.Pending => "status-pending",
-                            _ => ""
-                        };
+                        <div class="text-center py-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h3 class="mt-2 text-lg font-medium text-gray-900">No leave requests found</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                @(ViewBag.Filter == "Pending" ? "There are no pending leave requests." : "There are no closed leave requests.")
+                            </p>
+                        </div>
                     }
-                }
                 </div>
             </div>
-        }
-       
-    </div>
-
-    <!-- Second Container -->
-    <div style="flex: 1; border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h3>Working Hours: <span id="hoursWorked">@ViewData["HoursWorked"]</span> Hours</h3>
-    </div>
-
-
-    @if (User.IsInRole("Manager"))
-    {
-        <!-- Third Container -->
-        <div style="flex: 1; border: 2px solid #ccc; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-            <div style="font-weight: bold; font-size: 1.2em;">Leaves</div>
-            <div style="min-height: 100px; background-color: #f5f5f5; border-radius: 5px;">
-                <!-- Empty container for Leaves -->
-            </div>
         </div>
+    </div>
     }
-   
 </div>
+    <!-- Office Image Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <img src="~/img/office-bg.jpg" alt="Office" class="w-full h-full object-cover">
+    </div>
 
-<!-- Office Infrastructure Illustration -->
-<img src="~/img/office-bg.jpg"
-     alt="Office Infrastructure Illustration"
-     style="width: 100%; height: auto; margin-top: 20px;" />
+
+<!-- DevExtreme Popup for Rejection Reason -->
+<div id="reject-popup"></div>
 
 <script>
-    const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee';
-    var currentStatus = '@ViewData["CurrentStatus"]'; // Get the status from Razor
-
-    var dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" }));
-
-    // Initialize the DevExtreme buttons and dropdown
+    // Initialize UI components
     $(function() {
+        const userRole = '@User.IsInRole("Manager")' === 'True' ? 'Manager' : 'Employee';
+        const currentStatus = '@ViewData["CurrentStatus"]';
+        const dropdownOptions = @Html.Raw(@User.IsInRole("Manager") ? Json.Serialize(new[] { "Active", "Busy", "OnLeave" }) : Json.Serialize(new[] { "Active", "Busy" }));
+
+        // Clock In/Out Buttons
         $("#btnIn").dxButton({
-            text: "In",
+            text: "Clock In",
             type: "default",
-            onClick: async function(e) {
+            stylingMode: "contained",
+            elementAttr: { class: "!bg-green-600 hover:!bg-green-700" },
+            onClick: async function() {
                 const response = await fetch(`/Employee/ClockIn`, { method: "GET" });
                 const message = await response.text();
-                alert(message);
+                $.notify(message, "info");
             }
         });
 
         $("#btnOut").dxButton({
-            text: "Out",
+            text: "Clock Out",
             type: "default",
-            onClick: async function(e) {
+            stylingMode: "contained",
+            elementAttr: { class: "!bg-red-600 hover:!bg-red-700" },
+            onClick: async function() {
                 const response = await fetch(`/Employee/ClockOut`, { method: "GET" });
                 const message = await response.text();
-                alert(message);
+                $.notify(message, "info");
             }
         });
 
-        $("#btnBreak").dxButton({
-            text: "Break",
-            type: "default",
-            onClick: async function(e) {
-                // Add break functionality here
-                $.notify("Break functionality to be implemented!", "error");
-
-            }
-        });
-
+        // Status Selector
         $("#btnSetStatus").dxSelectBox({
             items: dropdownOptions,
             value: currentStatus,
@@ -322,27 +190,86 @@
                 fetch(`/${controller}/SetStatus?status=${e.value}`, { method: "POST" })
                     .then(response => {
                         if (response.ok) {
-                            alert("Status updated successfully!");
+                            $.notify("Status updated successfully!", "info");
                         } else {
-                            alert("Failed to update status.");
+                            $.notify("Failed to update status.", "error");
                         }
                     });
             }
         });
+        // Filter change handler
+        document.getElementById("filter").addEventListener("change", function() {
+            window.location.href = `@Url.Action("ReviewLeave")?filter=${this.value}`;
+        });
+        document.getElementById("filter").value = "@ViewBag.Filter";
+
+        // Hours worked auto-update
+        function updateHoursWorked() {
+            fetch('/Employee/GetHoursWorked')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hoursWorked').innerText = data.hoursWorked;
+                });
+        }
+        setInterval(updateHoursWorked, 60000);
+        updateHoursWorked();
     });
 
-    // Function to update hours worked in real-time
-    // function updateHoursWorked() {
-    //     fetch('/Employee/GetHoursWorked')
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             document.getElementById('hoursWorked').innerText = data.hoursWorked;
-    //         });
-    // }
+    // Toggle reason visibility
+    function toggleReason(element) {
+        element.classList.toggle("line-clamp-3");
+    }
 
-    // Update hours worked every minute
-    // setInterval(updateHoursWorked, 60000);
+    // Leave request actions
+    function acceptLeaveRequest(leaveRequestId) {
+        $.ajax({
+            url: `/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`,
+            type: 'POST',
+            success: function() {
+                $.notify("Leave request accepted successfully!", "success");
+                setTimeout(() => location.reload(), 1000);
+            },
+            error: function() {
+                $.notify("Failed to accept leave request.", "error");
+            }
+        });
+    }
 
-    // Initial call to update hours worked
-    // updateHoursWorked();
+    function rejectLeaveRequest(leaveRequestId) {
+        $("#reject-popup").dxPopup({
+            title: "Enter Rejection Reason",
+            visible: false,
+            width: 400,
+            height: 300,
+            contentTemplate: function(contentElement) {
+                contentElement.append(`
+                    <textarea id="rejection-reason" class="w-full h-32 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Please provide a reason for rejection..."></textarea>
+                    <button id="submit-reject" class="w-full mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        Submit Rejection
+                    </button>
+                `);
+
+                $("#submit-reject").click(function() {
+                    const rejectionReason = $("#rejection-reason").val();
+                    if (!rejectionReason) {
+                        $.notify("Please enter a rejection reason.", "error");
+                        return;
+                    }
+
+                    fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, {
+                        method: "POST"
+                    }).then(response => {
+                        if (response.ok) {
+                            $.notify("Leave request rejected successfully!", "success");
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            $.notify("Failed to reject leave request.", "error");
+                        }
+                    });
+
+                    $("#reject-popup").dxPopup("hide");
+                });
+            }
+        }).dxPopup("show");
+    }
 </script>

@@ -4,110 +4,85 @@
     ViewData["Title"] = "My Profile";
 }
 
-
-<style>
-    .profile-container {
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .profile-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 1rem;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 3px solid #f0f0f0;
-    }
-
-    .avatar-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .profile-details {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .detail-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .detail-label {
-        font-weight: 600;
-        color: #555;
-    }
-
-    .profile-actions {
-        margin-top: 2rem;
-        text-align: center;
-        color: white !important;
-		text-decoration: none !important;
-    }
-</style>
-
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-avatar">
-            @* <img src="@(Model.ProfilePicture ?? "~/img/default-user.png")" alt="Profile Picture" class="avatar-image" /> *@
-            <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-user.png") : Model.ProfilePicture)"
-                 alt="Profile Picture" class="avatar-image" />
-
-            @* <img src="https://res.cloudinary.com/dbythhryh/image/upload/v1743077052/User3_do3kdb.png" alt="Profile Picture" class="avatar-image" /> *@
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Profile Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <!-- Profile Header -->
+        <div class="bg-blue-50 px-6 py-4 border-b border-blue-100">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                My Profile
+            </h1>
         </div>
-        <h2>@Model.FullName</h2>
-        <p>@Model.Position</p>
-    </div>
 
-    <div class="profile-details">
-        <div class="detail-item">
-            <span class="detail-label">Email:</span>
-            <span class="detail-value">@Model.Email</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Phone:</span>
-            <span class="detail-value">@(Model.PhoneNumber ?? "Not provided")</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Position:</span>
-            <span class="detail-value">@Model.Position</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Status:</span>
-            <span class="detail-value">@Model.Status</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Joining Date:</span>
-            <span class="detail-value">@Model.JoiningDate.ToString("dd MMM yyyy")</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Present Days:</span>
-            <span class="detail-value">@Model.PresentDaysCount</span>
-        </div>
-        <div class="detail-item">
-            <span class="detail-label">Total Working Hours:</span>
-            <span class="detail-value">@Model.TotalWorkingHours.ToString(@"hh\:mm")</span>
-        </div>
-    </div>
+        <!-- Profile Content -->
+        <div class="p-6">
+            <!-- Avatar and Basic Info -->
+            <div class="flex flex-col items-center text-center mb-8">
+                <div class="relative mb-4">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-user.png") : Model.ProfilePicture)"
+                         alt="Profile Picture"
+                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-[0_0px_5px_rgba(0,0,0,0.3)]" />
+                    <div class="absolute bottom-0 right-0 bg-blue-600 rounded-full p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">@Model.FullName</h2>
+                <p class="text-blue-600 font-medium">@Model.Position</p>
+                <span class="mt-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    @Model.Status
+                </span>
+            </div>
 
-    <div class="profile-actions">
-        <form asp-action="EditView" method="get">
-            <button type="submit" class="btn btn-primary">Edit Profile</button>
-        </form>
+            <!-- Profile Details Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                        <span class="text-sm font-medium text-gray-500">Email</span>
+                        <span class="text-sm font-medium text-gray-800">@Model.Email</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                        <span class="text-sm font-medium text-gray-500">Phone</span>
+                        <span class="text-sm font-medium text-gray-800">@(Model.PhoneNumber ?? "Not provided")</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                        <span class="text-sm font-medium text-gray-500">Position</span>
+                        <span class="text-sm font-medium text-gray-800">@Model.Position</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                        <span class="text-sm font-medium text-gray-500">Joining Date</span>
+                        <span class="text-sm font-medium text-gray-800">@Model.JoiningDate.ToString("dd MMM yyyy")</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                        <span class="text-sm font-medium text-gray-500">Present Days</span>
+                        <span class="text-sm font-medium text-gray-800">@Model.PresentDaysCount</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-sm font-medium text-gray-500">Total Hours</span>
+                        <span class="text-sm font-medium text-gray-800">@Model.TotalWorkingHours.ToString(@"hh\:mm")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center">
+                <form asp-action="EditView" method="get">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Profile
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

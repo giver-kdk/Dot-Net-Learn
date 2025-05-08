@@ -4,29 +4,99 @@
     ViewData["Title"] = "Employee Attendance";
 }
 
-<div class="text-center">
-    <h1>@Model.Employee.FullName: @Model.Employee.Position</h1>
+<div class="max-w-6xl mx-auto p-6">
+    <!-- Employee Header -->
+    <div class="text-center mb-8">
+        <div class="flex items-center justify-center mb-4">
+            <div class="bg-blue-100 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">@Model.Employee.FullName</h1>
+        <p class="text-gray-600">@Model.Employee.Position</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Attendance Percentage -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-3 rounded-lg bg-green-100 text-green-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Attendance Percentage</p>
+                    <p class="text-2xl font-semibold text-gray-800">@Model.Employee.AttendancePercentage.ToString("0.00")%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Working Hours -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-3 rounded-lg bg-blue-100 text-blue-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Working Hours</p>
+                    <p class="text-2xl font-semibold text-gray-800">@Model.Employee.TotalWorkingHours Hrs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Present/Absent Summary -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-3 rounded-lg bg-indigo-100 text-indigo-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Days Summary</p>
+                    <p class="text-lg font-semibold text-gray-800">
+                        <span class="text-green-600">@Model.Employee.PresentDaysCount Present</span> /
+                        <span class="text-red-600">@Model.Employee.AbscentDaysCount Absent</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            Attendance Overview
+        </h3>
+        <div id="chart" class="h-80"></div>
+    </div>
+
+    <!-- Time Logs -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Time Logs
+        </h3>
+        <div class="w-full" id="dataGridEmployee"></div>
+    </div>
 </div>
-
-<div id="chart"></div>
-
-<div class="text-center">
-    <h2><strong>Attendance Percentage: @Model.Employee.AttendancePercentage.ToString("0.00")%</strong></h2>
-</div>
-
-<div class="text-center">
-    <p><strong>Total Working Hours: @Model.Employee.TotalWorkingHours Hrs</p>
-</div>
-
-<h3>My Time Logs</h3>
-<div id="dataGridEmployee"></div>
-
 
 <script>
     $(function () {
         // Doughnut chart data transformation and visualization
         var totalDays = @Model.Employee.PresentDaysCount + @Model.Employee.AbscentDaysCount;
-
         var presentRatio = (@Model.Employee.PresentDaysCount / totalDays);
         var absentRatio = (@Model.Employee.AbscentDaysCount / totalDays);
 
@@ -34,10 +104,10 @@
             { category: `Present: ${@Model.Employee.PresentDaysCount}`, value: presentRatio },
             { category: `Absent: ${@Model.Employee.AbscentDaysCount}`, value: absentRatio }
         ];
-        console.log(attendanceData);
 
         $("#chart").dxPieChart({
             dataSource: attendanceData,
+            palette: ["#10B981", "#EF4444"],
             series: {
                 argumentField: "category",
                 valueField: "value",
@@ -46,7 +116,7 @@
                     visible: true,
                     format: "percent",
                     font: {
-                        size: 21,
+                        size: 16,
                         weight: "bold"
                     },
                     connector: {
@@ -56,36 +126,71 @@
             },
             legend: {
                 visible: true,
-                position: "bottom"
+                position: "bottom",
+                font: {
+                    size: 14
+                }
+            },
+            tooltip: {
+                enabled: true,
+                format: "percent",
+                percentPrecision: 2
             }
         });
 
-
         var timeLogs = @Html.Raw(Json.Serialize(Model.TimeLogs));
 
-            // Initialize DevExtreme DataGrid
-            $("#dataGridEmployee").dxDataGrid({
-                dataSource: timeLogs,
-                columns: [
-                    { dataField: "ClockIn", caption: "Clock In", format: "yyyy-MM-dd HH:mm:ss" },
-                    { dataField: "ClockOut", caption: "Clock Out", format: "yyyy-MM-dd HH:mm:ss" },
-                    { dataField: "WorkingHoursPerDay", caption: "Total Hours Worked", format: "#0.00" }
-                ],
-                paging: {
-                    enabled: true,
-                    pageSize: 10
+        // Initialize DevExtreme DataGrid
+        $("#dataGridEmployee").dxDataGrid({
+            dataSource: timeLogs,
+            columns: [
+                {
+                    dataField: "ClockIn",
+                    caption: "Clock In",
+                    dataType: "datetime",
+                    format: "MMM d, yyyy h:mm a",
+                    width: 180
                 },
-                filterRow: {
-                    visible: true
+                {
+                    dataField: "ClockOut",
+                    caption: "Clock Out",
+                    dataType: "datetime",
+                    format: "MMM d, yyyy h:mm a",
+                    width: 180
                 },
-                headerFilter: {
-                    visible: true
-                },
-                showBorders: true,
-                hoverStateEnabled: true,
-                selection: {
-                    mode: "single"
+                {
+                    dataField: "WorkingHoursPerDay",
+                    caption: "Hours Worked",
+                    dataType: "number",
+                    format: "#0.00",
+                    width: 120
                 }
-            });
+            ],
+            paging: {
+                enabled: true,
+                pageSize: 10
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [5, 10, 20],
+                showInfo: true
+            },
+            filterRow: {
+                visible: true
+            },
+            headerFilter: {
+                visible: true
+            },
+            showBorders: true,
+            hoverStateEnabled: true,
+            rowAlternationEnabled: true,
+            selection: {
+                mode: "single"
+            },
+            searchPanel: {
+                visible: true,
+                placeholder: "Search time logs..."
+            }
+        });
     });
 </script>

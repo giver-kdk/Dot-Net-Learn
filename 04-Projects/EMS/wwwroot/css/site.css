@@ -123,4 +123,14 @@ body {
     }
 
 
+header.bg-indigo-700 a,
+header.bg-indigo-700 li,
+header.bg-indigo-700 i {
+    color: white !important;
+}
+
+.text-white {
+    color: white !important;
+}
+
   

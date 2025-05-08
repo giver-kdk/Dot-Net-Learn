@@ -1,0 +1,6 @@
+******************************** Soft Delete Steps ********************************
+- Create soft delete entity (Domain/Entities/SoftDeletableEntity.cs)
+- Extend the SoftDeletableEntity class in the Topic entity (Domain/Entities/Topis.cs)
+- Update the DBContext by adding filter and modification of deletion logic. (Infrastrucure/Context/IdeaPortalDbContext.cs)
+- Made Topics entity as SoftDeletable entity by extending SoftDeletableEntity class.
+- Modified the DB to have IsDeleted flag, so that the data persists in DB even when deleted

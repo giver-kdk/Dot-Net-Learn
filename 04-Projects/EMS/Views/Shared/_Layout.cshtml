@@ -5,105 +5,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EMS</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/EMS.styles.css" asp-append-version="true" />
+    
+    <!-- Tailwind CSS -->
+    <script src="~/js/tailwind.min.js"></script>
+    
     <!-- DevExtreme theme -->
     <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/24.2.3/css/dx.light.css">
-
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
+    
     <!-- DevExtreme libraries -->
     <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script>
-
+    
     <!-- SignalR Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-
+    
+    <link rel="stylesheet" href="~/EMS.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="dx-viewport">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EMS</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+<body class="dx-viewport bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-blue-600 text-white shadow-md">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a class="text-xl font-bold text-white hover:text-indigo-200 transition-colors" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-user-shield mr-2"></i>EMS
+                    </a>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-indigo-200 hover:bg-blue-700 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false" id="mobile-menu-button">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Desktop menu -->
+                <div class="hidden md:flex items-center space-x-4" id="desktop-menu">
+                    <ul class="flex space-x-4">
+                        <li>
+                            <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home mr-1"></i> Home
+                            </a>
                         </li>
-                       
+                        
                         <!-- ********* Show nav options according to user's role ********* -->
                         @if (User.Identity.IsAuthenticated)
                         {
                             @if (User.IsInRole("Employee"))
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Employee" asp-action="LeaveRequest">Ask Leave</a>
+                                <li>
+                                    <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Employee" asp-action="LeaveRequest">
+                                        <i class="fas fa-calendar-plus mr-1"></i> Ask Leave
+                                    </a>
                                 </li>
                             }
                             else if (User.IsInRole("Manager"))
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Manager" asp-action="ReviewLeave">Review Leave</a>
+                                <li>
+                                    <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Manager" asp-action="ReviewLeave">
+                                        <i class="fas fa-clipboard-check mr-1"></i> Review Leave
+                                    </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Manager" asp-action="EmployeeAttendance">Employee Attendance</a>
+                                <li>
+                                    <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Manager" asp-action="EmployeeAttendance">
+                                        <i class="fas fa-user-clock mr-1"></i> Employee Attendance
+                                    </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Manager" asp-action="GetEmployees">Manage Employees</a>
+                                <li>
+                                    <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Manager" asp-action="GetEmployees">
+                                        <i class="fas fa-users-cog mr-1"></i> Manage Employees
+                                    </a>
                                 </li>
                             }
 
                             <!-- Common options for all authenticated users -->
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Employee" asp-action="MyAttendance">My Attendance</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Employee" asp-action="MyAttendance">
+                                    <i class="fas fa-calendar-alt mr-1"></i> My Attendance
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Notification" asp-action="Index">Notification</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Notification" asp-action="Index">
+                                    <i class="fas fa-bell mr-1"></i> Notifications
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Profile" asp-action="Index">Profile</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Profile" asp-action="Index">
+                                    <i class="fas fa-user-circle mr-1"></i> Profile
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Logout" asp-action="Index">Logout</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Logout" asp-action="Index">
+                                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                </a>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Register" asp-action="Index">Register</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Register" asp-action="Index">
+                                    <i class="fas fa-user-plus mr-1"></i> Register
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Login" asp-action="Index">Login</a>
+                            <li>
+                                <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" asp-controller="Login" asp-action="Index">
+                                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                                </a>
                             </li>
                         }
                     </ul>
                 </div>
             </div>
+            
+            <!-- Mobile menu -->
+            <div class="hidden md:hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home mr-2"></i> Home
+                    </a>
+                    
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @if (User.IsInRole("Employee"))
+                        {
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Employee" asp-action="LeaveRequest">
+                                <i class="fas fa-calendar-plus mr-2"></i> Ask Leave
+                            </a>
+                        }
+                        else if (User.IsInRole("Manager"))
+                        {
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Manager" asp-action="ReviewLeave">
+                                <i class="fas fa-clipboard-check mr-2"></i> Review Leave
+                            </a>
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Manager" asp-action="EmployeeAttendance">
+                                <i class="fas fa-user-clock mr-2"></i> Employee Attendance
+                            </a>
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Manager" asp-action="GetEmployees">
+                                <i class="fas fa-users-cog mr-2"></i> Manage Employees
+                            </a>
+                        }
+
+                        <!-- Common options for all authenticated users -->
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Employee" asp-action="MyAttendance">
+                            <i class="fas fa-calendar-alt mr-2"></i> My Attendance
+                        </a>
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Notification" asp-action="Index">
+                            <i class="fas fa-bell mr-2"></i> Notifications
+                        </a>
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Profile" asp-action="Index">
+                            <i class="fas fa-user-circle mr-2"></i> Profile
+                        </a>
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Logout" asp-action="Index">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Register" asp-action="Index">
+                            <i class="fas fa-user-plus mr-2"></i> Register
+                        </a>
+                        <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700" asp-controller="Login" asp-action="Index">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </a>
+                    }
+                </div>
+            </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    
+    <div class="flex-grow">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - EMS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    &copy; 2025 - EMS - <a class="hover:text-indigo-300 transition-colors" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-indigo-300 transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-indigo-300 transition-colors"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="hover:text-indigo-300 transition-colors"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="hover:text-indigo-300 transition-colors"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
         </div>
     </footer>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
+    
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+    
     <!-- Notify.js Scripts -->
-    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/notify.js/2.0.0/notify.min.js"></script> *@
-
     <script src="~/js/notify.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
+    
     <!-- Auto browser refresh on hot reload -->
     <script src="/_framework/aspnetcore-browser-refresh.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

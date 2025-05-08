@@ -13,13 +13,29 @@ namespace EMS.Domain.Models
         public int Id { get; set; }
         [JsonPropertyName("EmployeeId")]
         public int EmployeeId { get; set; }
-        [JsonPropertyName("Log")]
-        public DateTime Log { get; set; }
-        [JsonPropertyName("LogType")]
-        public String LogType { get; set; }
+        [JsonPropertyName("ClockIn")]
+        public DateTime ClockIn { get; set; }
+        [JsonPropertyName("ClockOut")]
+        public DateTime? ClockOut { get; set; }
         [JsonPropertyName("WorkingHoursPerDay")]
         public TimeSpan? WorkingHoursPerDay { get; set; }
         [JsonPropertyName("Employee")]
         public Employee Employee { get; set; }
     }
+    //public class TimeLog
+    //{
+    //    [JsonPropertyName("Id")]
+    //    public int Id { get; set; }
+    //    [JsonPropertyName("EmployeeId")]
+    //    public int EmployeeId { get; set; }
+    //    [JsonPropertyName("Log")]
+    //    public DateTime Log { get; set; }
+    //    [JsonPropertyName("LogType")]
+    //    public String LogType { get; set; }
+    //    [JsonPropertyName("WorkingHoursPerDay")]
+    //    public TimeSpan? WorkingHoursPerDay { get; set; }
+    //    [JsonPropertyName("Employee")]
+    //    public Employee Employee { get; set; }
+    //}
+
 }

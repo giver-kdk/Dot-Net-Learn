@@ -112,6 +112,55 @@ namespace EMS.Controllers
             return View(model);
         }
         //[HttpGet]
+        //public async Task<IActionResult> MyAttendance()
+        //{
+        //    var userId = _userManager.GetUserId(User);
+        //    if (string.IsNullOrEmpty(userId))
+        //    {
+        //        return RedirectToAction("Index", "Login");
+        //    }
+        //    if (!int.TryParse(userId, out int employeeId))
+        //    {
+        //        return BadRequest("Invalid user ID.");
+        //    }
+
+        //    var employee = await _context.Employees
+        //        .FirstOrDefaultAsync(e => e.Id == employeeId);
+
+        //    if (employee == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    // Map Employee to EmployeeDto
+        //    var employeeDto = new EmployeeDto
+        //    {
+        //        Id = employee.Id,
+        //        FullName = employee.FullName,
+        //        Email = employee.Email,
+        //        Position = employee.Position,
+        //        PresentDaysCount = employee.PresentDaysCount,
+        //        AbscentDaysCount = CalculateAbsentDays(employee),
+        //        AttendancePercentage = CalculateAttendancePercentage(employee), // Implement this method
+        //        TotalWorkingHours = employee.TotalWorkingHours,
+        //        Status = employee.Status
+        //    };
+
+        //    // Fetch employee's attendance timelog
+        //    var timeLogs = await _context.TimeLogs
+        //        .Where(t => t.EmployeeId == employeeId)
+        //        .OrderByDescending(t => t.LogType == "ClockIn")
+        //        .ToListAsync();
+
+        //    // Create the combined ViewModel
+        //    var viewModel = new EmployeeTimelogDto
+        //    {
+        //        Employee = employeeDto,
+        //        TimeLogs = timeLogs
+        //    };
+
+        //    return View(viewModel);
+        //}
+        //[HttpGet]
         public async Task<IActionResult> MyAttendance()
         {
             var userId = _userManager.GetUserId(User);
@@ -148,7 +197,7 @@ namespace EMS.Controllers
             // Fetch employee's attendance timelog
             var timeLogs = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId)
-                .OrderByDescending(t => t.LogType == "ClockIn")
+                .OrderByDescending(t => t.ClockIn)
                 .ToListAsync();
 
             // Create the combined ViewModel
@@ -178,7 +227,6 @@ namespace EMS.Controllers
             }
             return (employee.PresentDaysCount / (double)totalWorkingDays) * 100;
         }
-
         public async Task<IActionResult> ClockIn()
         {
             // Get user ID and convert to integer
@@ -198,7 +246,7 @@ namespace EMS.Controllers
 
             // Check if the employee has already clocked in today
             var hasClockedInToday = await _context.TimeLogs
-                .AnyAsync(t => t.EmployeeId == employeeId && t.LogType == "ClockIn" && t.Log.Date == today);
+                .AnyAsync(t => t.EmployeeId == employeeId && t.ClockIn.Date == today);
 
             if (hasClockedInToday)
             {
@@ -216,8 +264,9 @@ namespace EMS.Controllers
             var timeLog = new TimeLog
             {
                 EmployeeId = employeeId,
-                Log = DateTime.Now,
-                LogType="ClockIn",
+                ClockIn = DateTime.Now,
+                ClockOut = null,
+                WorkingHoursPerDay = null
             };
 
             _context.TimeLogs.Add(timeLog);
@@ -226,7 +275,53 @@ namespace EMS.Controllers
 
             return Ok("Clocked In Successfully!");
         }
+        //public async Task<IActionResult> ClockIn()
+        //{
+        //    // Get user ID and convert to integer
+        //    var userId = _userManager.GetUserId(User);
+        //    if (string.IsNullOrEmpty(userId))
+        //    {
+        //        return RedirectToAction("Index", "Login");
+        //    }
+        //    if (!int.TryParse(userId, out int employeeId))
+        //    {
+        //        return BadRequest("Invalid user ID.");
+        //    }
 
+
+        //    // **************** Avoid multiple clock ins **************** 
+        //    var today = DateTime.Today;
+
+        //    // Check if the employee has already clocked in today
+        //    var hasClockedInToday = await _context.TimeLogs
+        //        .AnyAsync(t => t.EmployeeId == employeeId && t.LogType == "ClockIn" && t.Log.Date == today);
+
+        //    if (hasClockedInToday)
+        //    {
+        //        return BadRequest("You have already clocked in today.");
+        //    }
+
+
+        //    // Increment user's present days in attendace
+        //    var employee = await _context.Employees
+        //       .FirstOrDefaultAsync(e => e.Id == employeeId);
+        //    employee.PresentDaysCount++;
+
+
+        //    // Save the clock in time log on database
+        //    var timeLog = new TimeLog
+        //    {
+        //        EmployeeId = employeeId,
+        //        Log = DateTime.Now,
+        //        LogType="ClockIn",
+        //    };
+
+        //    _context.TimeLogs.Add(timeLog);
+        //    _context.Employees.Update(employee);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok("Clocked In Successfully!");
+        //}
         public async Task<IActionResult> ClockOut()
         {
             // Get user ID and convert to integer
@@ -247,8 +342,8 @@ namespace EMS.Controllers
             // Find the most recent TimeLog entry for the current employee and today's date
             var timeLog = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId &&
-                             t.Log.Date == today)
-                .OrderByDescending(t => t.Log)
+                             t.ClockIn.Date == today)
+                .OrderByDescending(t => t.ClockIn)
                 .FirstOrDefaultAsync();
 
             if (timeLog == null)
@@ -256,27 +351,69 @@ namespace EMS.Controllers
                 return BadRequest("You have to clock in before clocking out!");
             }
             // Here, 'ClockOut' is a nullable value. So, we need to check if it has a value or not as well
-            else if (timeLog.LogType == "ClockOut" && timeLog.Log.Date == today)
+            else if (timeLog.ClockOut.HasValue && timeLog.ClockOut.Value.Date == today)
             {
                 return BadRequest("You have already clocked out today.");
             }
 
-            var clockOutLog = new TimeLog
-            {
-                EmployeeId = timeLog.EmployeeId,
-                Log = DateTime.Now,
-                LogType = "ClockOut"
-            };
-            await _context.TimeLogs.AddAsync(clockOutLog);
+            timeLog.ClockOut = DateTime.Now;
 
-            // *************** Calculate Hours Worked ***************
-            //timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
-            timeLog.WorkingHoursPerDay = null;
+            timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
 
             await _context.SaveChangesAsync();
 
             return Ok("Clocked Out Successfully!");
         }
+        //public async Task<IActionResult> ClockOut()
+        //{
+        //    // Get user ID and convert to integer
+        //    var userId = _userManager.GetUserId(User);
+        //    if (string.IsNullOrEmpty(userId))
+        //    {
+        //        return RedirectToAction("Index", "Login");
+        //    }
+        //    if (!int.TryParse(userId, out int employeeId))
+        //    {
+        //        return BadRequest("Invalid user ID.");
+        //    }
+
+
+        //    // *********************** Avoid ClockOut "before ClockIn" and "after ClockOut" ***********************
+        //    var today = DateTime.Now.Date;
+
+        //    // Find the most recent TimeLog entry for the current employee and today's date
+        //    var timeLog = await _context.TimeLogs
+        //        .Where(t => t.EmployeeId == employeeId &&
+        //                     t.Log.Date == today)
+        //        .OrderByDescending(t => t.Log)
+        //        .FirstOrDefaultAsync();
+
+        //    if (timeLog == null)
+        //    {
+        //        return BadRequest("You have to clock in before clocking out!");
+        //    }
+        //    // Here, 'ClockOut' is a nullable value. So, we need to check if it has a value or not as well
+        //    else if (timeLog.LogType == "ClockOut" && timeLog.Log.Date == today)
+        //    {
+        //        return BadRequest("You have already clocked out today.");
+        //    }
+
+        //    var clockOutLog = new TimeLog
+        //    {
+        //        EmployeeId = timeLog.EmployeeId,
+        //        Log = DateTime.Now,
+        //        LogType = "ClockOut"
+        //    };
+        //    await _context.TimeLogs.AddAsync(clockOutLog);
+
+        //    // *************** Calculate Hours Worked ***************
+        //    //timeLog.WorkingHoursPerDay = timeLog.ClockOut - timeLog.ClockIn;
+        //    timeLog.WorkingHoursPerDay = null;
+
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok("Clocked Out Successfully!");
+        //}
 
 
         [HttpPost]

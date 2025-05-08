@@ -278,7 +278,7 @@ namespace EMS.Controllers
             // Fetch all TimeLogs for today's date
             var today = DateTime.UtcNow.Date;
             var timeLogs = await _context.TimeLogs
-                .Where(t => t.LogType == "ClockIn" && t.Log.Date == today)
+                .Where(t => t.ClockIn.Date == today)
                 .ToListAsync();
 
             Console.WriteLine($"Total TimeLogs Found: {timeLogs.Count}");
@@ -355,7 +355,7 @@ namespace EMS.Controllers
 
             var timeLogs = _context.TimeLogs
                 .Where(t => t.EmployeeId == id)
-                .OrderByDescending(t => t.Log) // Order by latest log
+                .OrderByDescending(t => t.ClockIn) // Order by latest clock-in
                 .ToList();
 
             ViewBag.Employee = employee; // Pass the employee object to the view

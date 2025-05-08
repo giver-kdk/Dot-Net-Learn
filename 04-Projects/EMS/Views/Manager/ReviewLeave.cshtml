@@ -5,46 +5,121 @@
     ViewData["Title"] = "Review Leave";
 }
 
-@* Style: site.css -> Review Leave Style *@
-
-<div class="leave__req--container">
-    <select id="filter" class="form-control" style="width: 150px;">
-        <option value="Pending">Pending</option>
-        <option value="Closed">Closed</option>
-    </select>
-</div>
-
-<div class="leave__req--cards">
-    @foreach (var leaveRequest in Model)
-    {
-        <div class="leave__req--card">
-            <div class="leave__req--card-header">
-                <span class="request-date">@leaveRequest.RequestDate.ToString("yyyy-MM-dd")</span>
-                <span class="status @GetStatusClass(leaveRequest.Status)">@leaveRequest.Status.ToString()</span>
-            </div>
-            <div class="leave__req--card-body">
-                <p><strong>Employee:</strong> @leaveRequest.Employee.FullName</p>
-                <p><strong>Position:</strong> @leaveRequest.Employee.Position</p>
-                <p><strong>Leave Type:</strong> @leaveRequest.LeaveType</p>
-                <p><strong>Start Date:</strong> @leaveRequest.StartDate.ToString("yyyy-MM-dd")</p>
-                <p><strong>End Date:</strong> @leaveRequest.EndDate.ToString("yyyy-MM-dd")</p>
-                <p><strong>Number of Days:</strong> @((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1)</p>
-                <p class="reason collapsed" onclick="toggleReason(this)">@leaveRequest.Reason</p>
-                @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
-                {
-                    <p><strong>Rejection Reason:</strong> @leaveRequest.RejectionReason</p>
-                }
-            </div>
-            <div class="leave__req--card-footer">
-                @if (ViewBag.Filter == "Pending")
-                {
-                    <button class="btn btn-success" onclick="acceptLeaveRequest(@leaveRequest.Id)">Accept</button>
-                    <button class="btn btn-danger" onclick="rejectLeaveRequest(@leaveRequest.Id)">Reject</button>
-                }
-            </div>
-
+<div class="max-w-6xl mx-auto p-6">
+    <!-- Header and Filter -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                Review Leave Requests
+            </h1>
+            <p class="text-sm text-gray-500">Approve or reject employee leave requests</p>
         </div>
-    }
+
+        <select id="filter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            <option value="Pending">Pending Requests</option>
+            <option value="Closed">Closed Requests</option>
+        </select>
+    </div>
+
+    <!-- Leave Requests Cards -->
+    <div class="space-y-4" id="leaveRequestsContainer">
+        @foreach (var leaveRequest in Model)
+        {
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="p-5">
+                    <!-- Request Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500">
+                                Submitted: @leaveRequest.RequestDate.ToString("yyyy-MM-dd")
+                            </span>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium
+                              @(leaveRequest.Status == LeaveStatus.Approved ? "bg-green-100 text-green-800" :
+                                leaveRequest.Status == LeaveStatus.Rejected ? "bg-red-100 text-red-800" :
+                                "bg-blue-100 text-blue-800")">
+                            @leaveRequest.Status.ToString()
+                        </span>
+                    </div>
+
+                    <!-- Request Details -->
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Employee</p>
+                            <p class="font-medium">@leaveRequest.Employee.FullName</p>
+                            <p class="text-sm text-gray-500">@leaveRequest.Employee.Position</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Leave Type</p>
+                            <p class="font-medium">@leaveRequest.LeaveType</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Dates</p>
+                            <p class="font-medium">
+                                @leaveRequest.StartDate.ToString("MMM d") - @leaveRequest.EndDate.ToString("MMM d")
+                                (@((leaveRequest.EndDate - leaveRequest.StartDate).Days + 1) days)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Reason (collapsible) -->
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-500">Reason</p>
+                        <p class="mt-1 text-gray-700 cursor-pointer hover:text-blue-600 transition-colors line-clamp-3"
+                           onclick="toggleReason(this)">
+                            @leaveRequest.Reason
+                        </p>
+                    </div>
+
+                    <!-- Rejection Reason (if applicable) -->
+                    @if (ViewBag.Filter == "Closed" && leaveRequest.Status == LeaveStatus.Rejected)
+                    {
+                        <div class="mt-4 p-3 bg-red-50 rounded-md">
+                            <p class="text-sm font-medium text-red-800">Rejection Reason</p>
+                            <p class="mt-1 text-red-700">@leaveRequest.RejectionReason</p>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    @if (ViewBag.Filter == "Pending")
+                    {
+                        <div class="flex justify-end gap-2 mt-4">
+                            <button onclick="acceptLeaveRequest(@leaveRequest.Id)"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Accept
+                            </button>
+                            <button onclick="rejectLeaveRequest(@leaveRequest.Id)"
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Reject
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No leave requests found</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    @(ViewBag.Filter == "Pending" ? "There are no pending leave requests." : "There are no closed leave requests.")
+                </p>
+            </div>
+        }
+    </div>
 </div>
 
 <!-- DevExtreme Popup for Rejection Reason -->
@@ -52,7 +127,7 @@
 
 <script>
     function toggleReason(element) {
-        element.classList.toggle("collapsed");
+        element.classList.toggle("line-clamp-3");
     }
 
     document.getElementById("filter").addEventListener("change", function () {
@@ -61,21 +136,19 @@
 
     document.getElementById("filter").value = "@ViewBag.Filter";
 
-function acceptLeaveRequest(leaveRequestId) {
-    $.ajax({
-        url: `/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`,
-        type: 'POST',
-        success: function() {
+    function acceptLeaveRequest(leaveRequestId) {
+        $.ajax({
+            url: `/Manager/AcceptLeaveRequest?leaveRequestId=${leaveRequestId}`,
+            type: 'POST',
+            success: function() {
                 $.notify("Leave request accepted successfully!", "success");
-                
                 refreshLeaveRequests();
-                // window.location.reload();
-        },
-        error: function() {
-            $.notify("Failed to accept leave request.", "error");
-        }
-    });
-}
+            },
+            error: function() {
+                $.notify("Failed to accept leave request.", "error");
+            }
+        });
+    }
 
     function rejectLeaveRequest(leaveRequestId) {
         // Initialize DevExtreme Popup
@@ -86,29 +159,30 @@ function acceptLeaveRequest(leaveRequestId) {
             height: 300,
             contentTemplate: function (contentElement) {
                 contentElement.append(`
-                    <textarea id="rejection-reason" style="width: 100%; height: 150px;"></textarea>
-                    <button id="submit-reject" class="btn btn-danger" style="margin-top: 16px;">Submit</button>
+                    <textarea id="rejection-reason" class="w-full h-32 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Please provide a reason for rejection..."></textarea>
+                    <button id="submit-reject" class="w-full mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        Submit Rejection
+                    </button>
                 `);
 
                 $("#submit-reject").click(function () {
                     const rejectionReason = $("#rejection-reason").val();
                     if (!rejectionReason) {
-
                         $.notify("Please enter a rejection reason.", "info");
                         return;
                     }
 
-                    fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, { method: "POST" })
-                        .then(response => {
-                            if (response.ok) {
-                                $.notify("Leave requets rejected successfully", "success");
-
-                                refreshLeaveRequests();
-                                    // window.location.reload();        // Refresh the page
-                            } else {
-                                $.notify("Failed to reject leave request.", "error");
-                            }
-                        });
+                    fetch(`/Manager/RejectLeaveRequest?leaveRequestId=${leaveRequestId}&rejectionReason=${encodeURIComponent(rejectionReason)}`, {
+                        method: "POST"
+                    }).then(response => {
+                        if (response.ok) {
+                            $.notify("Leave request rejected successfully!", "success");
+                            refreshLeaveRequests();
+                        } else {
+                            $.notify("Failed to reject leave request.", "error");
+                        }
+                    });
 
                     $("#reject-popup").dxPopup("hide");
                 });
@@ -122,12 +196,11 @@ function acceptLeaveRequest(leaveRequestId) {
         const filter = document.getElementById("filter").value;
 
         $.ajax({
-            url: '@Url.Action("ReviewLeavePartial", "Manager")',        
+            url: '@Url.Action("ReviewLeavePartial", "Manager")',
             type: 'GET',
             data: { filter: filter },
             success: function(data) {
-				$('.leave__req--cards').empty();            // Remove all childs of the container
-                $('.leave__req--cards').append(data);       // Add updated partial view childrens on the container
+                $('#leaveRequestsContainer').html(data);
             },
             error: function() {
                 $.notify("Failed to refresh leave requests.", "error");
@@ -135,16 +208,3 @@ function acceptLeaveRequest(leaveRequestId) {
         });
     }
 </script>
-
-@functions {
-    public string GetStatusClass(LeaveStatus status)
-    {
-        return status switch
-        {
-            LeaveStatus.Approved => "status-approved",
-            LeaveStatus.Rejected => "status-rejected",
-            LeaveStatus.Pending => "status-pending",
-            _ => ""
-        };
-    }
-}

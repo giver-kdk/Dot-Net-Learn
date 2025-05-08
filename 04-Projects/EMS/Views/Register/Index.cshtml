@@ -1,51 +1,117 @@
 ﻿@model EMS.Application.DTOs.RegisterModel
-@{
-}
-<h2>Register</h2>
 
-<form asp-controller="Register" asp-action="Create">
-    <div class="form-group">
-        <label asp-for="FullName">FullName</label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+        <div class="text-center">
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Create Account
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Register a new employee account
+            </p>
+        </div>
+
+        <form class="mt-8 space-y-6" asp-controller="Register" asp-action="Create">
+            <div class="rounded-md shadow-sm space-y-4">
+                <!-- Full Name -->
+                <div>
+                    <label asp-for="FullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <div class="mt-1">
+                        <input asp-for="FullName" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="FullName" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label asp-for="Email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <div class="mt-1">
+                        <input asp-for="Email" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="Email" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label asp-for="PhoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <div class="mt-1">
+                        <input asp-for="PhoneNumber" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="PhoneNumber" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Position -->
+                <div>
+                    <label asp-for="Position" class="block text-sm font-medium text-gray-700">Position</label>
+                    <div class="mt-1">
+                        <input asp-for="Position" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="Position" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label asp-for="Password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="mt-1">
+                        <input asp-for="Password" type="password" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="Password" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div>
+                    <label asp-for="Role" class="block text-sm font-medium text-gray-700">Role</label>
+                    <div class="mt-1">
+                        <select asp-for="Role" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="Employee">Employee</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                        <span asp-validation-for="Role" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Salary -->
+                <div>
+                    <label asp-for="Salary" class="block text-sm font-medium text-gray-700">Salary</label>
+                    <div class="mt-1">
+                        <input asp-for="Salary" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="Salary" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+
+                <!-- Joining Date -->
+                <div>
+                    <label asp-for="JoiningDate" class="block text-sm font-medium text-gray-700">Joining Date</label>
+                    <div class="mt-1">
+                        <input asp-for="JoiningDate" type="date" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                        <span asp-validation-for="JoiningDate" class="mt-1 text-sm text-red-600"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-300 group-hover:text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </span>
+                    Register
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="PhoneNumber">Phone Number</label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Position">Position</label>
-        <input asp-for="Position" class="form-control" />
-        <span asp-validation-for="Position" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password">Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Role">Role</label>
-        <select asp-for="Role" class="form-control">
-            <option value="Employee">Employee</option>
-            <option value="Manager">Manager</option>
-        </select>
-        <span asp-validation-for="Role" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Salary">Salary</label>
-        <input asp-for="Salary" class="form-control" />
-        <span asp-validation-for="Salary" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="JoiningDate">Joining Date</label>
-        <input asp-for="JoiningDate" type="date" class="form-control" />
-        <span asp-validation-for="JoiningDate" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,83 +1,184 @@
 ﻿@model IEnumerable<EMS.Domain.Models.TimeLog>
+@using EMS.Domain.Enums
 @{
     ViewData["Title"] = "Time Logs";
     var employee = ViewBag.Employee as EMS.Domain.Models.Employee;
 }
 
-<h1>Time Logs for @employee.FullName</h1>
+<div class="max-w-6xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Time Logs for @employee.FullName
+            </h1>
+            <p class="text-sm text-gray-500 mt-2">@employee.Position - Employee ID: @employee.Id</p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="px-3 py-1 rounded-full text-xs font-medium @(employee.Status == EmployeeStatus.Active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
+                @employee.Status
+            </span>
+            <img src="@(string.IsNullOrEmpty(employee.ProfilePicture) ? Url.Content("~/img/default-user.png") : employee.ProfilePicture)"
+                 alt="Profile Picture"
+                 class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+        </div>
+    </div>
 
-<div id="gridContainer"></div>
+    <!-- Data Grid Container -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div id="gridContainer" class="w-full"></div>
+    </div>
+</div>
 
-<script>
+@section Scripts {
+    <script>
+        var timelogData = @Html.Raw(Json.Serialize(Model));
 
-    var timelogData = @Html.Raw(Json.Serialize(Model));
-
-    $(function () {
-        $("#gridContainer").dxDataGrid({
-            dataSource: timelogData,
-            columns: [
-                {
-                    dataField: "ClockIn",
-                    dataType: "date",
-                    format: "yyyy-MM-dd HH:mm:ss",
-                    caption: "Clock In"
-                },
-                {
-                    dataField: "ClockOut",
-                    dataType: "date",
-                    format: "yyyy-MM-dd HH:mm:ss",
-                    caption: "Clock Out"
-                },
-                {
-                    dataField: "WorkingHoursPerDay",
-                    caption: "Working Hours",
-                    calculateCellValue: function (rowData) {
-                        if (rowData.ClockOut && rowData.ClockIn) {
-                            const diff = new Date(rowData.ClockOut) - new Date(rowData.ClockIn);
-                            const hours = Math.floor(diff / (1000 * 60 * 60));
-                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                            return `${hours}:${minutes}:${seconds}`;
+        $(function () {
+            $("#gridContainer").dxDataGrid({
+                dataSource: timelogData,
+                columns: [
+                    {
+                        dataField: "ClockIn",
+                        dataType: "datetime",
+                        format: "MMM d, yyyy h:mm a",
+                        caption: "Clock In",
+                        width: 180
+                    },
+                    {
+                        dataField: "ClockOut",
+                        dataType: "datetime",
+                        format: "MMM d, yyyy h:mm a",
+                        caption: "Clock Out",
+                        width: 180,
+                        cellTemplate: function(container, options) {
+                            if (options.value) {
+                                $("<div>").text(options.text).appendTo(container);
+                            } else {
+                                $("<span>")
+                                    .addClass("text-red-500 italic")
+                                    .text("Not clocked out")
+                                    .appendTo(container);
+                            }
                         }
-                        return "";
-                    }
-                },
-                {
-                    type: "buttons",
-                    buttons: [{
-                        text: "Clock Out",
-                        visible: function (rowData) {
-                            return rowData.ClockOut == null;
+                    },
+                    {
+                        dataField: "WorkingHoursPerDay",
+                        caption: "Working Hours",
+                        width: 120,
+                        calculateCellValue: function (rowData) {
+                            if (rowData.ClockOut && rowData.ClockIn) {
+                                const diff = new Date(rowData.ClockOut) - new Date(rowData.ClockIn);
+                                const hours = Math.floor(diff / (1000 * 60 * 60));
+                                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                return `${hours}h ${minutes}m`;
+                            }
+                            return "";
                         },
-                        onClick: function (e) {
-                            $.ajax({
-                                url: '@Url.Action("ClockOut", "TimeLog")',
-                                type: 'POST',
-                                data: { timeLogId: e.row.data.Id, employeeId: @employee.Id },
-                                success: function (result) {
-                                    location.reload();
-                                }
-                            });
+                        cellTemplate: function(container, options) {
+                            if (options.value) {
+                                $("<div>")
+                                    .addClass("font-medium text-blue-600")
+                                    .text(options.value)
+                                    .appendTo(container);
+                            } else {
+                                $("<span>")
+                                    .addClass("text-gray-400 italic")
+                                    .text("In progress")
+                                    .appendTo(container);
+                            }
                         }
-                    }]
+                    },
+                    {
+                        type: "buttons",
+                        width: 120,
+                        buttons: [{
+                            hint: "Clock Out",
+                            icon: "stop",
+                            visible: function (rowData) {
+                                return rowData.ClockOut == null;
+                            },
+                            onClick: function (e) {
+                                DevExpress.ui.dialog.confirm(
+                                    "Are you sure you want to clock out this employee?",
+                                    "Confirm Clock Out"
+                                ).done(function(dialogResult) {
+                                    if (dialogResult) {
+                                        $.ajax({
+                                            url: '@Url.Action("ClockOut", "TimeLog")',
+                                            type: 'POST',
+                                            data: {
+                                                timeLogId: e.row.data.Id,
+                                                employeeId: @employee.Id
+                                            },
+                                            beforeSend: function() {
+                                                DevExpress.ui.notify(
+                                                    "Processing clock out...",
+                                                    "info",
+                                                    1000
+                                                );
+                                            },
+                                            success: function (result) {
+                                                DevExpress.ui.notify(
+                                                    "Employee clocked out successfully",
+                                                    "success",
+                                                    2000
+                                                );
+                                                e.component.refresh();
+                                            },
+                                            error: function() {
+                                                DevExpress.ui.notify(
+                                                    "Failed to clock out employee",
+                                                    "error",
+                                                    2000
+                                                );
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }]
+                    }
+                ],
+                showBorders: false,
+                paging: {
+                    pageSize: 10
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [5, 10, 20],
+                    showInfo: true,
+                    infoText: "Page {0} of {1} ({2} items)"
+                },
+                filterRow: {
+                    visible: true
+                },
+                headerFilter: {
+                    visible: true
+                },
+                searchPanel: {
+                    visible: true,
+                    placeholder: "Search time logs..."
+                },
+                export: {
+                    enabled: true,
+                    fileName: `TimeLogs_@employee.FullName`,
+                    formats: ["xlsx", "pdf"],
+                    allowExportSelectedData: true
+                },
+                allowColumnResizing: true,
+                columnResizingMode: "nextColumn",
+                columnAutoWidth: true,
+                rowAlternationEnabled: true,
+                onRowPrepared: function(e) {
+                    if(e.rowType === "data") {
+                        e.rowElement.addClass("hover:bg-gray-50 cursor-pointer");
+                    }
                 }
-            ],
-            showBorders: true,
-            paging: {
-                pageSize: 10
-            },
-            pager: {
-                showPageSizeSelector: true,
-                allowedPageSizes: [5, 10, 20],
-                showInfo: true
-            },
-            export: {
-                enabled: true,
-                fileName: "TimeLogs"
-            },
-            allowColumnResizing: true,
-            columnResizingMode: "widget",
-            columnAutoWidth: true
+            });
         });
-    });
-</script>
+    </script>
+}

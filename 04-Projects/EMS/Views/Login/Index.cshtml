@@ -1,22 +1,37 @@
 ﻿@model EMS.Application.DTOs.LoginModel
 
-@{
-    // ViewData["Title"] = "Login";
-    // Layout = "_Layout";
-}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
+        <div class="text-center">
+            <h1 class="text-2xl font-medium text-blue-800">Employee Management System</h1>
+            <p class="mt-1 text-gray-600">Sign in to your account</p>
+        </div>
 
-<h2>Login</h2>
+        <form asp-action="Login" method="post" class="space-y-4">
+            <div>
+                <label asp-for="Email" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Email"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <span asp-validation-for="Email" class="mt-1 text-sm text-red-600"></span>
+            </div>
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+            <div>
+                <label asp-for="Password" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Password" type="password"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <span asp-validation-for="Password" class="mt-1 text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Sign in
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center text-sm text-gray-500">
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Forgot password?</a>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</div>

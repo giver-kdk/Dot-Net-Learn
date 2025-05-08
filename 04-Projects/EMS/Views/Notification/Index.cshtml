@@ -4,17 +4,60 @@
     ViewData["Title"] = "Notifications";
 }
 
-<div class="container mt-4">
-    <h2>Notifications</h2>
-    <div class="list-group">
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                Notifications
+            </h1>
+            <p class="text-sm text-gray-500">Your recent system notifications</p>
+        </div>
+        <div class="text-sm text-gray-500">
+            @Model.Count(n => !n.IsRead) unread
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="space-y-3">
         @foreach (var notification in Model)
         {
-            <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">@notification.Message</h5>
-                    <small>@notification.CreatedAt.ToString("g")</small>
+            <div class="bg-white p-4 rounded-lg shadow-sm border @(notification.IsRead ? "border-gray-200" : "border-blue-200 bg-blue-50") transition-all hover:shadow-md">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-1">
+                            @if (!notification.IsRead)
+                            {
+                                <span class="h-2 w-2 rounded-full bg-blue-600 mr-2"></span>
+                            }
+                            <p class="@(notification.IsRead ? "text-gray-700" : "font-semibold text-gray-800")">
+                                @notification.Message
+                            </p>
+                        </div>
+                        <div class="text-xs text-gray-500 pl-4">
+                            @notification.CreatedAt.ToString("MMMM dd, yyyy h:mm tt")
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <span class="text-xs px-2 py-1 rounded-full @(notification.IsRead ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-800")">
+                            @(notification.IsRead ? "Read" : "Unread")
+                        </span>
+                    </div>
                 </div>
-                <p class="mb-1">@(notification.IsRead ? "Read" : "Unread")</p>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No notifications</h3>
+                <p class="mt-1 text-sm text-gray-500">You don't have any notifications yet</p>
             </div>
         }
     </div>

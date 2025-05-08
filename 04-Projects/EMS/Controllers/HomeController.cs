@@ -48,13 +48,13 @@ namespace EMS.Controllers
             var today = DateTime.Today;
             // Calculate hours worked
             var timeLog = await _context.TimeLogs
-                .Where(t => t.EmployeeId == employeeId && t.Log == today && t.LogType=="ClockIn")
-                .OrderByDescending(t => t.Log)
+                .Where(t => t.EmployeeId == employeeId && t.ClockIn.Date == today)
+                .OrderByDescending(t => t.ClockIn)
                 .FirstOrDefaultAsync();
 
             if (timeLog != null)
             {
-                if (timeLog.LogType =="ClockOut")
+                if (timeLog.ClockOut.HasValue)
                 {
                     // If clocked out, use WorkingHoursPerDay
                     ViewData["HoursWorked"] = timeLog.WorkingHoursPerDay?.TotalHours.ToString("0.00") ?? "0.00";
@@ -62,7 +62,7 @@ namespace EMS.Controllers
                 else
                 {
                     // If still clocked in, calculate the difference between current time and ClockIn
-                    var hoursWorked = (DateTime.Now - timeLog.Log).TotalHours;
+                    var hoursWorked = (DateTime.Now - timeLog.ClockIn).TotalHours;
                     ViewData["HoursWorked"] = hoursWorked.ToString("0.00");
                 }
             }
@@ -115,12 +115,12 @@ namespace EMS.Controllers
 
             var timeLog = await _context.TimeLogs
                 .Where(t => t.EmployeeId == employeeId)
-                .OrderByDescending(t => t.Log)
+                .OrderByDescending(t => t.ClockIn)
                 .FirstOrDefaultAsync();
 
             if (timeLog != null)
             {
-                if (timeLog.LogType == "ClockOut")
+                if (timeLog.ClockOut.HasValue)
                 {
                     // If clocked out, use WorkingHoursPerDay
                     return Json(new { hoursWorked = timeLog.WorkingHoursPerDay?.TotalHours.ToString("0.00") ?? "0.00" });
@@ -128,7 +128,7 @@ namespace EMS.Controllers
                 else
                 {
                     // If still clocked in, calculate the difference between current time and ClockIn
-                    var hoursWorked = (DateTime.Now - timeLog.Log).TotalHours;
+                    var hoursWorked = (DateTime.Now - timeLog.ClockIn).TotalHours;
                     return Json(new { hoursWorked = hoursWorked.ToString("0.00") });
                 }
             }

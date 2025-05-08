@@ -5,177 +5,124 @@
     ViewData["Title"] = "Employee Attendance";
 }
 
-<style>
-    .attendance-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    }
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Employee Attendance
+        </h1>
 
-    .attendance-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    }
+        <!-- Search and Filter -->
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-64">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input id="search-box"
+                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                       type="text"
+                       placeholder="Search employees..."
+                       value="@ViewBag.Search"
+                       autofocus>
+            </div>
 
-    .attendance-list {
-    list-style: none;
-    padding: 0;
-    }
-
-    .attendance-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .attendance-item:hover {
-    background-color: #f9f9f9;
-    cursor: pointer;
-    }
-
-    .attendance-item .details {
-    flex: 1;
-    }
-
-    .attendance-item .percentage {
-    font-weight: bold;
-    color: #007bff;
-    }
-
-    .emp__status{
-    font-size: 11px;
-    padding: 2px 5px;
-    }
-    <style >
-        .search-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        max-width: 300px;
-        }
-
-        .search-box {
-        width: 100%;
-        padding: 10px 15px;
-        padding-left: 40px; /* Space for the icon */
-        font-size: 16px;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        outline: none;
-        transition: all 0.3s ease;
-        }
-
-        .search-box:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-
-        .search-icon {
-        position: absolute;
-        left: 12px;
-        font-size: 18px;
-        color: #888;
-        }
-
-        .profile__pic--icon{
-        height: 40px;
-        width: 40px;
-        border-radius: 50px;
-        }
-    </style>
-
-    <div class="attendance-container">
-        <div class="attendance-header">
-            <div class="search-container">
-                <input id="search-box" class="search-box" type="text" placeholder="Search employees..." value="@ViewBag.Search" />
-            </div>        
-            <select id="filter-dropdown">
+            <select id="filter-dropdown" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 <option value="Present">Present</option>
                 <option value="Absent">Absent</option>
             </select>
         </div>
+    </div>
 
-        <ul class="attendance-list">
-            @foreach (var employee in Model)
-            {
-                <li class="attendance-item" data-id="@employee.Id">
-                    <div class="details">
-                        <div>
-                            <img src="@(string.IsNullOrEmpty(employee.ProfilePicture) ? Url.Content("~/img/default-user.png") : employee.ProfilePicture)"
-                             alt="Profile Picture" class="profile__pic--icon" />
-                            @* <img class="profile__pic--icon" src="@Url.Content(employee.ProfilePicture)" alt="Employee Profile" /> *@
-                            <!-- Show the status only for present and set color according to status type -->
-                            <span class="emp__status @GetStatusClass(ViewBag.Filter, employee.Status) text-white rounded">@employee.Status</span>
-                        </div>
-
-                        <strong>@employee.FullName</strong> - @employee.Position
-                        <div>
-                            <span>Present: @employee.PresentDaysCount</span> |
-                            <span>Absent: @employee.AbscentDaysCount</span>
-                        </div>
-                    </div>
-                    <div class="percentage">
-                        @employee.AttendancePercentage.ToString("0.00")%
-                    </div>
-                </li>
-            }
-    </ul>
-</div>
-<!-- BG setter function according to status -->
-    @functions {
-        private string GetStatusClass(string filter, EmployeeStatus status)
+    <!-- Employee List -->
+    <div class="space-y-3">
+        @foreach (var employee in Model)
         {
-            if (filter == "Absent")
-            {
-                return "d-none";
-            }
-            return status switch
-            {
-                EmployeeStatus.Active => "bg-success",     // Bootstrap green
-                EmployeeStatus.OnLeave => "bg-secondary",  // Bootstrap light gray
-                EmployeeStatus.Busy => "bg-primary",       // Bootstrap blue
-                _ => "bg-light text-dark"     // Default (light gray with dark text)
-            };
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                 onclick="window.location.href='@Url.Action("EmployeeTimelogs", new { id = employee.Id })'">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <img src="@(string.IsNullOrEmpty(employee.ProfilePicture) ? Url.Content("~/img/default-user.png") : employee.ProfilePicture)"
+                             alt="Profile Picture"
+                             class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-small text-gray-800">@employee.FullName</h3>
+                                @if (ViewBag.Filter != "Absent")
+                                {
+                                    <span class="px-2 py-0.5 text-xs rounded-full @GetStatusColor(employee.Status)">
+                                        @employee.Status
+                                    </span>
+                                }
+                            </div>
+                            <p class="text-sm text-gray-500">@employee.Position</p>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="flex items-center justify-end space-x-4">
+                            <div class="text-sm">
+                                <span class="text-green-600 font-medium">@employee.PresentDaysCount Present</span>
+                                <span class="mx-1">|</span>
+                                <span class="text-red-600 font-medium">@employee.AbscentDaysCount Absent</span>
+                            </div>
+                            <div class="text-lg font-bold text-blue-600">
+                                @employee.AttendancePercentage.ToString("0.00")%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No employees found</h3>
+                <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria</p>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    private string GetStatusColor(EmployeeStatus status)
+    {
+        return status switch
+        {
+            EmployeeStatus.Active => "bg-green-100 text-green-800",
+            EmployeeStatus.OnLeave => "bg-gray-100 text-gray-800",
+            EmployeeStatus.Busy => "bg-blue-100 text-blue-800",
+            _ => "bg-gray-100 text-gray-800"
+        };
+    }
 }
 
 <script>
     $(function () {
+        // Set initial filter value
+        $("#filter-dropdown").val("@ViewBag.Filter");
 
-        // Auto-focus on the search box when the page re-loads
-        let searchBox = $("#search-box");
-        searchBox.focus(function () {
-            let length = searchBox.val().length;
-            searchBox[0].setSelectionRange(length, length);
-        }).focus();
-
-
+        // Handle filter change
         $("#filter-dropdown").change(function () {
             const filter = $(this).val();
             const search = $("#search-box").val();
             window.location.href = `@Url.Action("EmployeeAttendance")?filter=${filter}&search=${search}`;
         });
 
+        // Handle search input
         $("#search-box").on("input", function () {
             const filter = $("#filter-dropdown").val();
             const search = $(this).val();
             window.location.href = `@Url.Action("EmployeeAttendance")?filter=${filter}&search=${search}`;
         });
-
-        // Handle employee item click
-        $(".attendance-item").click(function () {
-            const employeeId = $(this).data("id");
-            window.location.href = `@Url.Action("EmployeeTimelogs")?id=${employeeId}`;
-        });
-
-        $("#filter-dropdown").val("@ViewBag.Filter");
     });
 </script>
